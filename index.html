@@ -60,6 +60,12 @@
             outline: none;
             border-color: #000000;
         }
+        /* Nueva clase para separar visualmente cada bloque de pared */
+        .select-pared {
+            margin-top: 5px;
+            margin-bottom: 15px;
+            background-color: #fafafa;
+        }
         .resumen-m2 {
             text-align: right;
             font-size: 14px;
@@ -136,29 +142,53 @@
             <img src="image_3.png.jpg" alt="Logo JF Reformas">
         </div>
 
+        <!-- PARED 1 -->
         <label>Pared 1 (Ancho x Alto en metros)</label>
         <div class="medidas-flex">
             <input type="number" id="ancho1" placeholder="Ancho" value="3" min="0" step="0.1" oninput="actualizarCotizacion()">
             <input type="number" id="alto1" placeholder="Alto" value="2.5" min="0" step="0.1" oninput="actualizarCotizacion()">
         </div>
+        <select id="modelo1" class="select-pared" onchange="actualizarCotizacion()">
+            <option value="15000" data-color="0xffffff">Blanco Clásico ($15.000/m²)</option>
+            <option value="24600" data-color="0x9e9e9e">Gris ($24.600/m²)</option>
+            <option value="27000" data-color="0x8b5a2b">Símil Madera ($27.000/m²)</option>
+        </select>
 
+        <!-- PARED 2 -->
         <label>Pared 2 (Ancho x Alto en metros)</label>
         <div class="medidas-flex">
             <input type="number" id="ancho2" placeholder="Ancho" value="3" min="0" step="0.1" oninput="actualizarCotizacion()">
             <input type="number" id="alto2" placeholder="Alto" value="2.5" min="0" step="0.1" oninput="actualizarCotizacion()">
         </div>
+        <select id="modelo2" class="select-pared" onchange="actualizarCotizacion()">
+            <option value="15000" data-color="0xffffff">Blanco Clásico ($15.000/m²)</option>
+            <option value="24600" data-color="0x9e9e9e">Gris ($24.600/m²)</option>
+            <option value="27000" data-color="0x8b5a2b">Símil Madera ($27.000/m²)</option>
+        </select>
 
+        <!-- PARED 3 -->
         <label>Pared 3 (Ancho x Alto en metros)</label>
         <div class="medidas-flex">
             <input type="number" id="ancho3" placeholder="Ancho" value="0" min="0" step="0.1" oninput="actualizarCotizacion()">
             <input type="number" id="alto3" placeholder="Alto" value="0" min="0" step="0.1" oninput="actualizarCotizacion()">
         </div>
+        <select id="modelo3" class="select-pared" onchange="actualizarCotizacion()">
+            <option value="15000" data-color="0xffffff">Blanco Clásico ($15.000/m²)</option>
+            <option value="24600" data-color="0x9e9e9e">Gris ($24.600/m²)</option>
+            <option value="27000" data-color="0x8b5a2b">Símil Madera ($27.000/m²)</option>
+        </select>
 
+        <!-- PARED 4 -->
         <label>Pared 4 (Ancho x Alto en metros)</label>
         <div class="medidas-flex">
             <input type="number" id="ancho4" placeholder="Ancho" value="0" min="0" step="0.1" oninput="actualizarCotizacion()">
             <input type="number" id="alto4" placeholder="Alto" value="0" min="0" step="0.1" oninput="actualizarCotizacion()">
         </div>
+        <select id="modelo4" class="select-pared" onchange="actualizarCotizacion()">
+            <option value="15000" data-color="0xffffff">Blanco Clásico ($15.000/m²)</option>
+            <option value="24600" data-color="0x9e9e9e">Gris ($24.600/m²)</option>
+            <option value="27000" data-color="0x8b5a2b">Símil Madera ($27.000/m²)</option>
+        </select>
 
         <div class="resumen-m2" id="texto-m2">Total: 0 m² (0 placas)</div>
 
@@ -167,14 +197,6 @@
             <button id="btn-otro" class="btn-activo" onclick="seleccionarAmbiente(60000, 'Otro', this)">Otro ($60k x placa)</button>
             <button id="btn-bano" onclick="seleccionarAmbiente(65000, 'Baño', this)">Baño ($65k x placa)</button>
         </div>
-
-        <label>Material y Color</label>
-        <select id="modelo" onchange="actualizarCotizacion()">
-            <!-- Los data-color son para el 3D, y los value son el costo del material por m2 -->
-            <option value="15000" data-color="0xffffff">Blanco Clásico ($15.000/m²)</option>
-            <option value="24600" data-color="0x9e9e9e">Gris ($24.600/m²)</option>
-            <option value="27000" data-color="0x8b5a2b">Símil Madera ($27.000/m²)</option>
-        </select>
 
         <div id="canvas-container"></div>
 
@@ -210,13 +232,11 @@
             luzDireccional.position.set(10, 15, 10);
             escena.add(luzDireccional);
 
-            // Creamos un grupo donde vamos a meter las 4 paredes para girarlas juntas
             grupoParedes = new THREE.Group();
             escena.add(grupoParedes);
 
             function animar() {
                 requestAnimationFrame(animar);
-                // Hace girar la habitación entera suavemente
                 grupoParedes.rotation.y += 0.005;
                 renderizador.render(escena, camara);
             }
@@ -225,17 +245,12 @@
         }
 
         function dibujarParedes3D() {
-            // Borrar paredes viejas
             while(grupoParedes.children.length > 0){ 
                 let hijo = grupoParedes.children[0];
                 grupoParedes.remove(hijo); 
                 hijo.geometry.dispose();
                 hijo.material.dispose();
             }
-
-            // Conseguir el color hexadecimal seleccionado
-            const selectColor = document.getElementById('modelo');
-            const colorHex = parseInt(selectColor.options[selectColor.selectedIndex].getAttribute('data-color'));
 
             const anchos = [
                 parseFloat(document.getElementById('ancho1').value) || 0,
@@ -273,6 +288,10 @@
                 const centroZ = (z1 + z2) / 2;
                 const rotacion = (i % 2 === 0) ? 0 : Math.PI / 2;
 
+                // Acá lee el color específico que el cliente eligió para ESTA pared
+                const selectColor = document.getElementById('modelo' + (i + 1));
+                const colorHex = parseInt(selectColor.options[selectColor.selectedIndex].getAttribute('data-color'));
+
                 const geometria = new THREE.BoxGeometry(anchos[i], altos[i], 0.1);
                 const material = new THREE.MeshStandardMaterial({ 
                     color: colorHex,
@@ -282,14 +301,12 @@
                 
                 const pared = new THREE.Mesh(geometria, material);
                 
-                // Posicionar la pared y centrar la habitación
                 pared.position.set(centroX - (anchos[0]/2), altos[i] / 2, centroZ + (anchos[1]/2)); 
                 pared.rotation.y = rotacion;
                 
                 grupoParedes.add(pared);
             }
 
-            // Alejar la cámara para que entre todo el cuarto
             const tamanoMax = Math.max(anchos[0]+anchos[2], anchos[1]+anchos[3], 4);
             camara.position.z = tamanoMax * 1.2 + 1;
             camara.position.y = maxAlto + 1.5;
@@ -314,26 +331,37 @@
         }
 
         function actualizarCotizacion() {
-            const area1 = calcularArea('ancho1', 'alto1');
-            const area2 = calcularArea('ancho2', 'alto2');
-            const area3 = calcularArea('ancho3', 'alto3');
-            const area4 = calcularArea('ancho4', 'alto4');
-            
-            totalMetrosCuadrados = area1 + area2 + area3 + area4;
-            
-            // Calculamos cantidad de placas necesarias (redondeado hacia arriba)
-            cantidadPlacas = Math.ceil(totalMetrosCuadrados / METROS_POR_PLACA);
-            
-            // Precio del material
-            const selectModelo = document.getElementById('modelo');
-            const precioMaterialM2 = parseFloat(selectModelo.value); 
-            // Como la placa se vende entera, multiplicamos el precio por m2 * 2.93
-            const precioMaterialPorPlaca = precioMaterialM2 * METROS_POR_PLACA; 
-            const costoTotalMaterial = cantidadPlacas * precioMaterialPorPlaca;
+            totalMetrosCuadrados = 0;
+            let areasPorMaterial = {};
 
-            // Precio de la mano de obra
-            const costoTotalManoObra = cantidadPlacas * precioManoObraPorPlaca;
+            // Agrupamos los metros cuadrados por el modelo elegido para ser precisos
+            for(let i = 1; i <= 4; i++) {
+                const area = calcularArea('ancho' + i, 'alto' + i);
+                if (area > 0) {
+                    totalMetrosCuadrados += area;
+                    const precioMaterialM2 = document.getElementById('modelo' + i).value;
+                    
+                    if (!areasPorMaterial[precioMaterialM2]) {
+                        areasPorMaterial[precioMaterialM2] = 0;
+                    }
+                    areasPorMaterial[precioMaterialM2] += area;
+                }
+            }
             
+            let costoTotalMaterial = 0;
+            cantidadPlacas = 0;
+
+            // Calculamos las placas y costos para cada material usado
+            for (const [precioM2, areaAcumulada] of Object.entries(areasPorMaterial)) {
+                const placasNecesariasDeEsteColor = Math.ceil(areaAcumulada / METROS_POR_PLACA);
+                cantidadPlacas += placasNecesariasDeEsteColor;
+                
+                const precioMaterialPorPlaca = parseFloat(precioM2) * METROS_POR_PLACA;
+                costoTotalMaterial += placasNecesariasDeEsteColor * precioMaterialPorPlaca;
+            }
+
+            // Precio de la mano de obra total
+            const costoTotalManoObra = cantidadPlacas * precioManoObraPorPlaca;
             precioFinalTotal = costoTotalMaterial + costoTotalManoObra;
             
             // Actualizar textos en pantalla
@@ -341,20 +369,30 @@
             document.getElementById('precio-texto').innerText = '$ ' + precioFinalTotal.toLocaleString('es-AR', {maximumFractionDigits: 0});
             document.getElementById('texto-desglose').innerText = `Material: $${costoTotalMaterial.toLocaleString('es-AR', {maximumFractionDigits: 0})} | Instalación: $${costoTotalManoObra.toLocaleString('es-AR', {maximumFractionDigits: 0})}`;
 
-            // Actualizar las paredes y los colores del 3D
+            // Actualizar las paredes del 3D
             dibujarParedes3D();
         }
 
         function enviarWhatsApp() {
-            const selectColor = document.getElementById('modelo');
-            const modeloNombre = selectColor.options[selectColor.selectedIndex].text.split(' (')[0];
+            let detalleParedesMensaje = "";
             
+            // Armamos el texto detallando cada pared
+            for(let i = 1; i <= 4; i++) {
+                const ancho = parseFloat(document.getElementById('ancho' + i).value) || 0;
+                const alto = parseFloat(document.getElementById('alto' + i).value) || 0;
+                if(ancho > 0 && alto > 0) {
+                    const select = document.getElementById('modelo' + i);
+                    const modeloNombre = select.options[select.selectedIndex].text.split(' (')[0];
+                    detalleParedesMensaje += `%0A- Pared ${i}: ${ancho}x${alto}m | Color: ${modeloNombre}`;
+                }
+            }
+
             const precioFinal = document.getElementById('precio-texto').innerText;
             
             // NÚMERO DE WHATSAPP ACÁ
             const numero = "5491100000000"; 
             
-            const mensaje = `Hola JF Reformas! Estuve viendo el cotizador y me gustaría encargar una instalación.%0A%0A📐 Superficie a cubrir: ${totalMetrosCuadrados.toFixed(2)} m²%0A🧱 Placas necesarias (rend. 2.93m2): ${cantidadPlacas}%0A🏠 Tipo de ambiente: ${tipoAmbienteSeleccionado}%0A🎨 Material: ${modeloNombre}%0A%0A💰 PRESUPUESTO ESTIMADO: ${precioFinal}%0A_(Incluye costo de placas e instalación)_%0A%0A¿Tienen disponibilidad?`;
+            const mensaje = `Hola JF Reformas! Estuve viendo el cotizador y me gustaría encargar una instalación.%0A%0A📏 DETALLE DE PAREDES:${detalleParedesMensaje}%0A%0A📐 Superficie a cubrir: ${totalMetrosCuadrados.toFixed(2)} m²%0A🧱 Placas necesarias (rend. 2.93m2): ${cantidadPlacas}%0A🏠 Tipo de ambiente: ${tipoAmbienteSeleccionado}%0A%0A💰 PRESUPUESTO ESTIMADO: ${precioFinal}%0A_(Incluye costo de placas e instalación)_%0A%0A¿Tienen disponibilidad?`;
             
             window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
         }
