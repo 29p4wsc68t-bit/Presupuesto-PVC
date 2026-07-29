@@ -41,23 +41,60 @@
             display: block;
             margin-top: 15px;
             margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .medidas-flex {
+            display: flex;
+            gap: 10px;
         }
         input, select {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 2px solid #ccc;
             border-radius: 8px;
             box-sizing: border-box;
-            font-size: 16px;
+            font-size: 15px;
             transition: border-color 0.3s;
         }
         input:focus, select:focus {
             outline: none;
             border-color: #000000;
         }
+        .resumen-m2 {
+            text-align: right;
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
+        .botones-ambiente {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .botones-ambiente button {
+            flex: 1;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: white;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+        .botones-ambiente button.btn-activo {
+            border-color: #000000;
+            background-color: #000000;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
         #canvas-container {
             width: 100%;
-            height: 220px;
+            height: 200px;
             background-color: #f0f0f0;
             border-radius: 10px;
             margin-top: 20px;
@@ -69,7 +106,7 @@
             font-size: 28px;
             font-weight: bold;
             color: #000000;
-            margin: 20px 0;
+            margin: 10px 0 20px 0;
         }
         .boton-whatsapp {
             background-color: #25D366;
@@ -90,32 +127,65 @@
 
     <div class="tarjeta">
         <div class="logo-container">
-            <!-- Acá está el nombre de la imagen actualizado -->
             <img src="image_3.png.jpg" alt="Logo JF Reformas">
         </div>
 
-        <label>Ancho de la pared (metros)</label>
-        <input type="number" id="ancho" value="3" min="0.1" step="0.1" oninput="actualizarCotizacion()">
+        <label>Pared 1 (Ancho x Alto en metros)</label>
+        <div class="medidas-flex">
+            <input type="number" id="ancho1" placeholder="Ancho" value="3" min="0" step="0.1" oninput="actualizarCotizacion()">
+            <input type="number" id="alto1" placeholder="Alto" value="2.5" min="0" step="0.1" oninput="actualizarCotizacion()">
+        </div>
 
-        <label>Largo de la pared (metros)</label>
-        <input type="number" id="largo" value="3" min="0.1" step="0.1" oninput="actualizarCotizacion()">
+        <label>Pared 2 (Ancho x Alto en metros)</label>
+        <div class="medidas-flex">
+            <input type="number" id="ancho2" placeholder="Ancho" value="3" min="0" step="0.1" oninput="actualizarCotizacion()">
+            <input type="number" id="alto2" placeholder="Alto" value="2.5" min="0" step="0.1" oninput="actualizarCotizacion()">
+        </div>
 
-        <label>Modelo de Placa</label>
+        <label>Pared 3 (Ancho x Alto en metros)</label>
+        <div class="medidas-flex">
+            <input type="number" id="ancho3" placeholder="Ancho" value="0" min="0" step="0.1" oninput="actualizarCotizacion()">
+            <input type="number" id="alto3" placeholder="Alto" value="0" min="0" step="0.1" oninput="actualizarCotizacion()">
+        </div>
+
+        <label>Pared 4 (Ancho x Alto en metros)</label>
+        <div class="medidas-flex">
+            <input type="number" id="ancho4" placeholder="Ancho" value="0" min="0" step="0.1" oninput="actualizarCotizacion()">
+            <input type="number" id="alto4" placeholder="Alto" value="0" min="0" step="0.1" oninput="actualizarCotizacion()">
+        </div>
+
+        <div class="resumen-m2" id="texto-m2">Total: 0 m² (0 placas)</div>
+
+        <label>Tipo de Ambiente (Incluye costo de instalación)</label>
+        <div class="botones-ambiente">
+            <button id="btn-otro" class="btn-activo" onclick="seleccionarAmbiente(60000, 'Otro', this)">Otro ($60k/placa)</button>
+            <button id="btn-bano" onclick="seleccionarAmbiente(65000, 'Baño', this)">Baño ($65k/placa)</button>
+        </div>
+
+        <label>Color de Placa (Sin cargo extra)</label>
         <select id="modelo" onchange="actualizarCotizacion()">
-            <option value="15000">Blanco Clásico ($15.000/m²)</option>
-            <option value="24600">Gris ($24.600/m²)</option>
-            <option value="27000">Símil Madera ($27.000/m²)</option>
+            <option value="Blanco Clásico">Blanco Clásico</option>
+            <option value="Gris">Gris</option>
+            <option value="Símil Madera">Símil Madera</option>
         </select>
 
         <div id="canvas-container"></div>
 
-        <div class="precio-final" id="precio-texto">$ 135.000</div>
+        <div class="precio-final" id="precio-texto">$ 0</div>
 
         <button class="boton-whatsapp" onclick="enviarWhatsApp()">Pedir por WhatsApp</button>
     </div>
 
     <script>
-        let escena, camara, renderizador, placa;
+        let escena, camara, renderizador, placa3D;
+        let totalMetrosCuadrados = 0;
+        let cantidadPlacas = 0;
+        
+        let precioPorPlaca = 60000;
+        let tipoAmbienteSeleccionado = "Otro";
+        
+        // --- ACÁ ESTÁ EL CAMBIO SOLICITADO ---
+        const METROS_POR_PLACA = 2.93; 
 
         function iniciar3D() {
             const contenedor = document.getElementById('canvas-container');
@@ -137,48 +207,71 @@
                 roughness: 0.3,
                 metalness: 0.1
             });
-            placa = new THREE.Mesh(geometria, material);
-            escena.add(placa);
+            placa3D = new THREE.Mesh(geometria, material);
+            escena.add(placa3D);
 
             function animar() {
                 requestAnimationFrame(animar);
-                placa.rotation.y += 0.005;
+                placa3D.rotation.y += 0.005;
                 renderizador.render(escena, camara);
             }
             animar();
             actualizarCotizacion();
         }
 
-        function actualizarCotizacion() {
-            const ancho = parseFloat(document.getElementById('ancho').value) || 0;
-            const largo = parseFloat(document.getElementById('largo').value) || 0;
-            const precioMetro = parseFloat(document.getElementById('modelo').value);
+        function seleccionarAmbiente(precio, tipo, botonElement) {
+            precioPorPlaca = precio;
+            tipoAmbienteSeleccionado = tipo;
 
-            const metrosCuadrados = ancho * largo;
-            const total = metrosCuadrados * precioMetro;
+            document.getElementById('btn-otro').classList.remove('btn-activo');
+            document.getElementById('btn-bano').classList.remove('btn-activo');
+
+            botonElement.classList.add('btn-activo');
+
+            actualizarCotizacion();
+        }
+
+        function calcularArea(idAncho, idAlto) {
+            const ancho = parseFloat(document.getElementById(idAncho).value) || 0;
+            const alto = parseFloat(document.getElementById(idAlto).value) || 0;
+            return ancho * alto;
+        }
+
+        function actualizarCotizacion() {
+            const area1 = calcularArea('ancho1', 'alto1');
+            const area2 = calcularArea('ancho2', 'alto2');
+            const area3 = calcularArea('ancho3', 'alto3');
+            const area4 = calcularArea('ancho4', 'alto4');
             
+            totalMetrosCuadrados = area1 + area2 + area3 + area4;
+            
+            // Calcula las placas en base al nuevo rendimiento de 2.93 m2
+            cantidadPlacas = Math.ceil(totalMetrosCuadrados / METROS_POR_PLACA);
+            
+            const total = cantidadPlacas * precioPorPlaca;
+            
+            document.getElementById('texto-m2').innerText = `Total: ${totalMetrosCuadrados.toFixed(2)} m² (${cantidadPlacas} placas necesarias)`;
             document.getElementById('precio-texto').innerText = '$ ' + total.toLocaleString('es-AR');
 
-            if (ancho > 0 && largo > 0) {
-                placa.scale.set(ancho, 1, largo);
-                const medidaMayor = Math.max(ancho, largo);
-                camara.position.z = medidaMayor * 1.5 + 2;
-                camara.position.y = medidaMayor * 0.5 + 1;
+            if (totalMetrosCuadrados > 0) {
+                const ladoFicticio = Math.sqrt(totalMetrosCuadrados);
+                placa3D.scale.set(ladoFicticio, 1, ladoFicticio);
+                camara.position.z = ladoFicticio * 1.5 + 2;
+                camara.position.y = ladoFicticio * 0.5 + 1;
                 camara.lookAt(0, 0, 0);
             }
         }
 
         function enviarWhatsApp() {
-            const ancho = document.getElementById('ancho').value;
-            const largo = document.getElementById('largo').value;
-            const select = document.getElementById('modelo');
-            const modeloNombre = select.options[select.selectedIndex].text;
+            const selectColor = document.getElementById('modelo');
+            const colorElegido = selectColor.value;
+            
             const precioFinal = document.getElementById('precio-texto').innerText;
             
-            // ACORDATE DE CAMBIAR ESTE NÚMERO
-            const numero = "5491131895060"; 
+            // RECORDATORIO: PONER EL NUMERO DE WHATSAPP ACÁ
+            const numero = "5491100000000"; 
             
-            const mensaje = `Hola JF Reformas! Estuve viendo el cotizador y me gustaría encargar una instalación.%0A%0A📏 Medidas: ${ancho}m x ${largo}m%0A🎨 Modelo: ${modeloNombre}%0A💰 Presupuesto estimado: ${precioFinal}%0A%0A¿Tienen disponibilidad?`;
+            const mensaje = `Hola JF Reformas! Estuve viendo el cotizador y me gustaría encargar una instalación.%0A%0A📐 Superficie total: ${totalMetrosCuadrados.toFixed(2)} m²%0A🧱 Placas necesarias: ${cantidadPlacas}%0A🏠 Tipo de ambiente: ${tipoAmbienteSeleccionado}%0A🎨 Color: ${colorElegido}%0A💰 Presupuesto estimado: ${precioFinal}%0A%0A¿Tienen disponibilidad?`;
             
             window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
         }
@@ -187,5 +280,3 @@
     </script>
 </body>
 </html>
-
-        
