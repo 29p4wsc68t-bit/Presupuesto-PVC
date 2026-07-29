@@ -76,7 +76,7 @@
         .botones-ambiente button {
             flex: 1;
             padding: 12px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
             border: 2px solid #ccc;
             border-radius: 8px;
@@ -94,7 +94,7 @@
 
         #canvas-container {
             width: 100%;
-            height: 200px;
+            height: 220px;
             background-color: #f0f0f0;
             border-radius: 10px;
             margin-top: 20px;
@@ -106,7 +106,13 @@
             font-size: 28px;
             font-weight: bold;
             color: #000000;
-            margin: 10px 0 20px 0;
+            margin: 5px 0;
+        }
+        .desglose {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 20px;
         }
         .boton-whatsapp {
             background-color: #25D366;
@@ -156,35 +162,38 @@
 
         <div class="resumen-m2" id="texto-m2">Total: 0 m² (0 placas)</div>
 
-        <label>Tipo de Ambiente (Incluye costo de instalación)</label>
+        <label>Tipo de Ambiente (Mano de Obra)</label>
         <div class="botones-ambiente">
-            <button id="btn-otro" class="btn-activo" onclick="seleccionarAmbiente(60000, 'Otro', this)">Otro ($60k/placa)</button>
-            <button id="btn-bano" onclick="seleccionarAmbiente(65000, 'Baño', this)">Baño ($65k/placa)</button>
+            <button id="btn-otro" class="btn-activo" onclick="seleccionarAmbiente(60000, 'Otro', this)">Otro ($60k x placa)</button>
+            <button id="btn-bano" onclick="seleccionarAmbiente(65000, 'Baño', this)">Baño ($65k x placa)</button>
         </div>
 
-        <label>Color de Placa (Sin cargo extra)</label>
+        <label>Material y Color</label>
         <select id="modelo" onchange="actualizarCotizacion()">
-            <option value="Blanco Clásico">Blanco Clásico</option>
-            <option value="Gris">Gris</option>
-            <option value="Símil Madera">Símil Madera</option>
+            <!-- Los data-color son para el 3D, y los value son el costo del material por m2 -->
+            <option value="15000" data-color="0xffffff">Blanco Clásico ($15.000/m²)</option>
+            <option value="24600" data-color="0x9e9e9e">Gris ($24.600/m²)</option>
+            <option value="27000" data-color="0x8b5a2b">Símil Madera ($27.000/m²)</option>
         </select>
 
         <div id="canvas-container"></div>
 
         <div class="precio-final" id="precio-texto">$ 0</div>
+        <div class="desglose" id="texto-desglose">Material: $0 | Instalación: $0</div>
 
         <button class="boton-whatsapp" onclick="enviarWhatsApp()">Pedir por WhatsApp</button>
     </div>
 
     <script>
-        let escena, camara, renderizador, placa3D;
+        let escena, camara, renderizador, grupoParedes;
+        
         let totalMetrosCuadrados = 0;
         let cantidadPlacas = 0;
+        let precioFinalTotal = 0;
         
-        let precioPorPlaca = 60000;
+        let precioManoObraPorPlaca = 60000;
         let tipoAmbienteSeleccionado = "Otro";
         
-        // --- ACÁ ESTÁ EL CAMBIO SOLICITADO ---
         const METROS_POR_PLACA = 2.93; 
 
         function iniciar3D() {
@@ -198,34 +207,101 @@
             const luzAmbiental = new THREE.AmbientLight(0xffffff, 0.7);
             escena.add(luzAmbiental);
             const luzDireccional = new THREE.DirectionalLight(0xffffff, 0.8);
-            luzDireccional.position.set(5, 10, 7);
+            luzDireccional.position.set(10, 15, 10);
             escena.add(luzDireccional);
 
-            const geometria = new THREE.BoxGeometry(1, 0.1, 1);
-            const material = new THREE.MeshStandardMaterial({ 
-                color: 0xf5f5f5,
-                roughness: 0.3,
-                metalness: 0.1
-            });
-            placa3D = new THREE.Mesh(geometria, material);
-            escena.add(placa3D);
+            // Creamos un grupo donde vamos a meter las 4 paredes para girarlas juntas
+            grupoParedes = new THREE.Group();
+            escena.add(grupoParedes);
 
             function animar() {
                 requestAnimationFrame(animar);
-                placa3D.rotation.y += 0.005;
+                // Hace girar la habitación entera suavemente
+                grupoParedes.rotation.y += 0.005;
                 renderizador.render(escena, camara);
             }
             animar();
             actualizarCotizacion();
         }
 
+        function dibujarParedes3D() {
+            // Borrar paredes viejas
+            while(grupoParedes.children.length > 0){ 
+                let hijo = grupoParedes.children[0];
+                grupoParedes.remove(hijo); 
+                hijo.geometry.dispose();
+                hijo.material.dispose();
+            }
+
+            // Conseguir el color hexadecimal seleccionado
+            const selectColor = document.getElementById('modelo');
+            const colorHex = parseInt(selectColor.options[selectColor.selectedIndex].getAttribute('data-color'));
+
+            const anchos = [
+                parseFloat(document.getElementById('ancho1').value) || 0,
+                parseFloat(document.getElementById('ancho2').value) || 0,
+                parseFloat(document.getElementById('ancho3').value) || 0,
+                parseFloat(document.getElementById('ancho4').value) || 0
+            ];
+            
+            const altos = [
+                parseFloat(document.getElementById('alto1').value) || 0,
+                parseFloat(document.getElementById('alto2').value) || 0,
+                parseFloat(document.getElementById('alto3').value) || 0,
+                parseFloat(document.getElementById('alto4').value) || 0
+            ];
+
+            let x = 0; let z = 0; const puntos = [[0, 0]];
+            for (let i = 0; i < 4; i++) {
+                const angulo = i * (Math.PI / 2);
+                x += Math.cos(angulo) * anchos[i];
+                z += Math.sin(angulo) * anchos[i];
+                puntos.push([x, z]);
+            }
+
+            let maxAlto = 0.1;
+            for (let i = 0; i < 4; i++) {
+                if(altos[i] > maxAlto) maxAlto = altos[i];
+            }
+
+            for (let i = 0; i < 4; i++) {
+                if (anchos[i] <= 0 || altos[i] <= 0) continue;
+
+                const [x1, z1] = puntos[i];
+                const [x2, z2] = puntos[i + 1];
+                const centroX = (x1 + x2) / 2;
+                const centroZ = (z1 + z2) / 2;
+                const rotacion = (i % 2 === 0) ? 0 : Math.PI / 2;
+
+                const geometria = new THREE.BoxGeometry(anchos[i], altos[i], 0.1);
+                const material = new THREE.MeshStandardMaterial({ 
+                    color: colorHex,
+                    roughness: 0.2,
+                    metalness: 0.1
+                });
+                
+                const pared = new THREE.Mesh(geometria, material);
+                
+                // Posicionar la pared y centrar la habitación
+                pared.position.set(centroX - (anchos[0]/2), altos[i] / 2, centroZ + (anchos[1]/2)); 
+                pared.rotation.y = rotacion;
+                
+                grupoParedes.add(pared);
+            }
+
+            // Alejar la cámara para que entre todo el cuarto
+            const tamanoMax = Math.max(anchos[0]+anchos[2], anchos[1]+anchos[3], 4);
+            camara.position.z = tamanoMax * 1.2 + 1;
+            camara.position.y = maxAlto + 1.5;
+            camara.lookAt(0, maxAlto / 2, 0);
+        }
+
         function seleccionarAmbiente(precio, tipo, botonElement) {
-            precioPorPlaca = precio;
+            precioManoObraPorPlaca = precio;
             tipoAmbienteSeleccionado = tipo;
 
             document.getElementById('btn-otro').classList.remove('btn-activo');
             document.getElementById('btn-bano').classList.remove('btn-activo');
-
             botonElement.classList.add('btn-activo');
 
             actualizarCotizacion();
@@ -245,33 +321,40 @@
             
             totalMetrosCuadrados = area1 + area2 + area3 + area4;
             
-            // Calcula las placas en base al nuevo rendimiento de 2.93 m2
+            // Calculamos cantidad de placas necesarias (redondeado hacia arriba)
             cantidadPlacas = Math.ceil(totalMetrosCuadrados / METROS_POR_PLACA);
             
-            const total = cantidadPlacas * precioPorPlaca;
-            
-            document.getElementById('texto-m2').innerText = `Total: ${totalMetrosCuadrados.toFixed(2)} m² (${cantidadPlacas} placas necesarias)`;
-            document.getElementById('precio-texto').innerText = '$ ' + total.toLocaleString('es-AR');
+            // Precio del material
+            const selectModelo = document.getElementById('modelo');
+            const precioMaterialM2 = parseFloat(selectModelo.value); 
+            // Como la placa se vende entera, multiplicamos el precio por m2 * 2.93
+            const precioMaterialPorPlaca = precioMaterialM2 * METROS_POR_PLACA; 
+            const costoTotalMaterial = cantidadPlacas * precioMaterialPorPlaca;
 
-            if (totalMetrosCuadrados > 0) {
-                const ladoFicticio = Math.sqrt(totalMetrosCuadrados);
-                placa3D.scale.set(ladoFicticio, 1, ladoFicticio);
-                camara.position.z = ladoFicticio * 1.5 + 2;
-                camara.position.y = ladoFicticio * 0.5 + 1;
-                camara.lookAt(0, 0, 0);
-            }
+            // Precio de la mano de obra
+            const costoTotalManoObra = cantidadPlacas * precioManoObraPorPlaca;
+            
+            precioFinalTotal = costoTotalMaterial + costoTotalManoObra;
+            
+            // Actualizar textos en pantalla
+            document.getElementById('texto-m2').innerText = `Total: ${totalMetrosCuadrados.toFixed(2)} m² (${cantidadPlacas} placas necesarias)`;
+            document.getElementById('precio-texto').innerText = '$ ' + precioFinalTotal.toLocaleString('es-AR', {maximumFractionDigits: 0});
+            document.getElementById('texto-desglose').innerText = `Material: $${costoTotalMaterial.toLocaleString('es-AR', {maximumFractionDigits: 0})} | Instalación: $${costoTotalManoObra.toLocaleString('es-AR', {maximumFractionDigits: 0})}`;
+
+            // Actualizar las paredes y los colores del 3D
+            dibujarParedes3D();
         }
 
         function enviarWhatsApp() {
             const selectColor = document.getElementById('modelo');
-            const colorElegido = selectColor.value;
+            const modeloNombre = selectColor.options[selectColor.selectedIndex].text.split(' (')[0];
             
             const precioFinal = document.getElementById('precio-texto').innerText;
             
-            // RECORDATORIO: PONER EL NUMERO DE WHATSAPP ACÁ
+            // NÚMERO DE WHATSAPP ACÁ
             const numero = "5491100000000"; 
             
-            const mensaje = `Hola JF Reformas! Estuve viendo el cotizador y me gustaría encargar una instalación.%0A%0A📐 Superficie total: ${totalMetrosCuadrados.toFixed(2)} m²%0A🧱 Placas necesarias: ${cantidadPlacas}%0A🏠 Tipo de ambiente: ${tipoAmbienteSeleccionado}%0A🎨 Color: ${colorElegido}%0A💰 Presupuesto estimado: ${precioFinal}%0A%0A¿Tienen disponibilidad?`;
+            const mensaje = `Hola JF Reformas! Estuve viendo el cotizador y me gustaría encargar una instalación.%0A%0A📐 Superficie a cubrir: ${totalMetrosCuadrados.toFixed(2)} m²%0A🧱 Placas necesarias (rend. 2.93m2): ${cantidadPlacas}%0A🏠 Tipo de ambiente: ${tipoAmbienteSeleccionado}%0A🎨 Material: ${modeloNombre}%0A%0A💰 PRESUPUESTO ESTIMADO: ${precioFinal}%0A_(Incluye costo de placas e instalación)_%0A%0A¿Tienen disponibilidad?`;
             
             window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
         }
