@@ -3,315 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presupuesto PVC</title>
-    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <title>JF Reformas - Cotizador de PVC</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f1f5f9; 
-            margin: 0; 
-            padding: 15px; 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
         }
-        .container { 
-            background: white; 
-            max-width: 500px; 
-            width: 100%; 
-            padding: 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        .tarjeta {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 400px;
+            border-top: 6px solid #000000;
         }
-        h1 { text-align: center; color: #0f172a; font-size: 22px; margin-top: 0; }
-        p.subtitulo { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 20px; }
-        
-        /* Sistema de pantallas */
-        .pantalla { display: none; }
-        .pantalla.activa { display: block; }
-
-        /* Estilos de formulario */
-        label { font-size: 13px; color: #475569; font-weight: 600; display: block; margin-bottom: 6px; margin-top: 15px;}
-        input, select { 
-            width: 100%; padding: 10px; border: 1px solid #cbd5e1; 
-            border-radius: 8px; box-sizing: border-box; font-size: 15px; background: #f8fafc;
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
         }
-        input:focus, select:focus { outline: none; border-color: #3b82f6; }
-        
-        button.btn-principal {
-            width: 100%; padding: 12px; background-color: #3b82f6; color: white;
-            border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
-            margin-top: 25px; cursor: pointer; transition: background 0.3s;
+        .logo-container img {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background-color: #000;
         }
-        button.btn-principal:hover { background-color: #2563eb; }
-
-        button.btn-whatsapp {
-            width: 100%; padding: 12px; background-color: #25D366; color: white;
-            border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
-            margin-top: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;
+        label {
+            font-weight: bold;
+            color: #000000;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
         }
-        button.btn-whatsapp:hover { background-color: #1ebc56; }
-
-        /* Visor 3D y Paredes */
-        #visor3d {
-            width: 100%; height: 280px; background-color: #e2e8f0;
-            border-radius: 10px; overflow: hidden; margin-bottom: 20px;
-            position: relative; cursor: grab;
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
         }
-        .ayuda-3d {
-            position: absolute; bottom: 10px; width: 100%; text-align: center;
-            font-size: 11px; color: #64748b; pointer-events: none;
+        input:focus, select:focus {
+            outline: none;
+            border-color: #000000;
         }
-        .pared-card {
-            background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px;
-            padding: 15px; margin-bottom: 15px;
+        #canvas-container {
+            width: 100%;
+            height: 220px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+            border: 1px solid #ddd;
         }
-        .pared-titulo { font-weight: bold; color: #334155; margin: 0 0 10px 0; font-size: 15px; }
-        .grid-medidas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        
-        .resultado { 
-            margin-top: 20px; padding: 15px; background: #eff6ff; 
-            border-radius: 8px; text-align: center; border: 1px solid #bfdbfe;
+        .precio-final {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #000000;
+            margin: 20px 0;
         }
-        .resultado p { margin: 5px 0; font-size: 14px; color: #1e3a8a;}
-        .total { font-size: 22px !important; font-weight: bold; margin-top: 10px !important; }
+        .boton-whatsapp {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(37, 211, 102, 0.3);
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div class="container">
-    
-    <!-- PANTALLA 1: DATOS DEL CLIENTE -->
-    <div id="pantalla-1" class="pantalla activa">
-        <h1>¡Hola! Armemos tu presupuesto</h1>
-        <p class="subtitulo">Dejanos un par de datos para empezar</p>
-
-        <label>Tu Nombre o Apodo:</label>
-        <input type="text" id="cliente-nombre" placeholder="Ej: Martín">
-
-        <label>¿En qué localidad es la obra?</label>
-        <input type="text" id="cliente-zona" placeholder="Ej: Villa Ballester, San Martín...">
-
-        <button class="btn-principal" onclick="irACalculadora()">Comenzar Presupuesto</button>
-    </div>
-
-    <!-- PANTALLA 2: CALCULADORA 3D -->
-    <div id="pantalla-2" class="pantalla">
-        <h1>Cotizador 3D</h1>
-        
-        <div id="visor3d">
-            <div class="ayuda-3d">Giralo o hacé zoom con el dedo</div>
+    <div class="tarjeta">
+        <div class="logo-container">
+            <!-- Acá está el nombre de la imagen actualizado -->
+            <img src="image_3.png.jpg" alt="Logo JF Reformas">
         </div>
 
-        <div id="paredes-container"></div>
+        <label>Ancho de la pared (metros)</label>
+        <input type="number" id="ancho" value="3" min="0.1" step="0.1" oninput="actualizarCotizacion()">
 
-        <div class="resultado">
-            <p>Superficie total: <b id="superficie">0</b> m²</p>
-            <p class="total">Costo Estimado: $<span id="total">0</span></p>
-        </div>
+        <label>Largo de la pared (metros)</label>
+        <input type="number" id="largo" value="3" min="0.1" step="0.1" oninput="actualizarCotizacion()">
 
-        <button class="btn-whatsapp" onclick="enviarWhatsApp()">
-            <!-- Ícono de WhatsApp en SVG -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
-            </svg>
-            Enviar Presupuesto por WhatsApp
-        </button>
+        <label>Modelo de Placa</label>
+        <select id="modelo" onchange="actualizarCotizacion()">
+            <option value="15000">Blanco Clásico ($15.000/m²)</option>
+            <option value="24600">Gris ($24.600/m²)</option>
+            <option value="27000">Símil Madera ($27.000/m²)</option>
+        </select>
+
+        <div id="canvas-container"></div>
+
+        <div class="precio-final" id="precio-texto">$ 135.000</div>
+
+        <button class="boton-whatsapp" onclick="enviarWhatsApp()">Pedir por WhatsApp</button>
     </div>
 
-</div>
+    <script>
+        let escena, camara, renderizador, placa;
 
-<script>
-    // --- NÚMERO DE TU AMIGO ---
-    // ¡IMPORTANTE! Cambiá este número por el de tu amigo. 
-    // Tiene que empezar con 549 (Argentina) y el código de área.
-    const NUMERO_WHATSAPP = "5491100000000"; 
+        function iniciar3D() {
+            const contenedor = document.getElementById('canvas-container');
+            escena = new THREE.Scene();
+            camara = new THREE.PerspectiveCamera(50, contenedor.clientWidth / contenedor.clientHeight, 0.1, 1000);
+            renderizador = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderizador.setSize(contenedor.clientWidth, contenedor.clientHeight);
+            contenedor.appendChild(renderizador.domElement);
 
-    const modelos = {
-        'ninguno': { nombre: 'Sin revestir', precio: 0, color: 0xcccccc },
-        'blanco': { nombre: 'Blanco Clásico', precio: 15000, color: 0xffffff },
-        'gris': { nombre: 'Gris Texturado', precio: 24600, color: 0x808080 },
-        'madera': { nombre: 'Símil Madera', precio: 27000, color: 0x8b5a2b }
-    };
+            const luzAmbiental = new THREE.AmbientLight(0xffffff, 0.7);
+            escena.add(luzAmbiental);
+            const luzDireccional = new THREE.DirectionalLight(0xffffff, 0.8);
+            luzDireccional.position.set(5, 10, 7);
+            escena.add(luzDireccional);
 
-    let paredesConfig = [
-        { ancho: 3, alto: 2.4, modelo: 'ninguno' },
-        { ancho: 3, alto: 2.4, modelo: 'ninguno' },
-        { ancho: 3, alto: 2.4, modelo: 'ninguno' },
-        { ancho: 3, alto: 2.4, modelo: 'ninguno' }
-    ];
+            const geometria = new THREE.BoxGeometry(1, 0.1, 1);
+            const material = new THREE.MeshStandardMaterial({ 
+                color: 0xf5f5f5,
+                roughness: 0.3,
+                metalness: 0.1
+            });
+            placa = new THREE.Mesh(geometria, material);
+            escena.add(placa);
 
-    let precioTotalGlobal = 0;
-    let tresDInicializado = false;
-    let scene, camera, renderer, controls;
-    let meshesParedes = [];
-
-    // --- CAMBIAR DE PANTALLA ---
-    function irACalculadora() {
-        const nombre = document.getElementById('cliente-nombre').value;
-        if(nombre.trim() === "") {
-            alert("Por favor, dejanos tu nombre para continuar.");
-            return;
-        }
-
-        document.getElementById('pantalla-1').classList.remove('activa');
-        document.getElementById('pantalla-2').classList.add('activa');
-        
-        // Iniciamos el 3D recién cuando se muestra la pantalla para que no haya errores visuales
-        if(!tresDInicializado) {
-            iniciar3D();
-            tresDInicializado = true;
-        }
-    }
-
-    // --- GENERAR LOS MENÚS ---
-    const contenedor = document.getElementById('paredes-container');
-    paredesConfig.forEach((pared, index) => {
-        contenedor.innerHTML += `
-            <div class="pared-card">
-                <p class="pared-titulo">Pared ${index + 1}</p>
-                <div class="grid-medidas">
-                    <div>
-                        <label>Ancho (m)</label>
-                        <input type="number" step="0.1" min="0" value="${pared.ancho}" oninput="actualizarPared(${index}, 'ancho', this.value)">
-                    </div>
-                    <div>
-                        <label>Alto (m)</label>
-                        <input type="number" step="0.1" min="0" value="${pared.alto}" oninput="actualizarPared(${index}, 'alto', this.value)">
-                    </div>
-                </div>
-                <label style="margin-top:0;">Modelo de Placa PVC</label>
-                <select onchange="actualizarPared(${index}, 'modelo', this.value)">
-                    <option value="ninguno">Seleccionar modelo...</option>
-                    <option value="blanco">Blanco Clásico ($15.000/m²)</option>
-                    <option value="gris">Gris Texturado ($24.600/m²)</option>
-                    <option value="madera">Símil Madera ($27.000/m²)</option>
-                </select>
-            </div>
-        `;
-    });
-
-    function actualizarPared(index, campo, valor) {
-        if (campo === 'ancho' || campo === 'alto') {
-            paredesConfig[index][campo] = parseFloat(valor) || 0;
-        } else {
-            paredesConfig[index][campo] = valor;
-        }
-        calcularTotales();
-        if(tresDInicializado) dibujar3D();
-    }
-
-    function calcularTotales() {
-        let supTotal = 0;
-        precioTotalGlobal = 0;
-
-        paredesConfig.forEach(pared => {
-            const superficie = pared.ancho * pared.alto;
-            const precioPlaca = modelos[pared.modelo].precio;
-            supTotal += superficie;
-            precioTotalGlobal += (superficie * precioPlaca);
-        });
-
-        document.getElementById('superficie').innerText = supTotal.toFixed(2);
-        document.getElementById('total').innerText = precioTotalGlobal.toLocaleString('es-AR');
-    }
-
-    // --- 3D ENGINE ---
-    function iniciar3D() {
-        const visor = document.getElementById('visor3d');
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xf8fafc);
-        
-        camera = new THREE.PerspectiveCamera(50, visor.clientWidth / visor.clientHeight, 0.1, 100);
-        camera.position.set(6, 6, 8);
-        
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(visor.clientWidth, visor.clientHeight);
-        visor.appendChild(renderer.domElement);
-
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.target.set(0, 1.2, 0);
-
-        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-        const luzDireccional = new THREE.DirectionalLight(0xffffff, 0.8);
-        luzDireccional.position.set(10, 20, 10);
-        scene.add(luzDireccional);
-        scene.add(new THREE.GridHelper(10, 10, 0x94a3b8, 0xe2e8f0));
-
-        dibujar3D();
-        animar();
-    }
-
-    function dibujar3D() {
-        meshesParedes.forEach(mesh => { scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); });
-        meshesParedes = [];
-
-        let x = 0; let z = 0; const puntos = [[0, 0]];
-        for (let i = 0; i < 4; i++) {
-            const angulo = i * (Math.PI / 2);
-            x += Math.cos(angulo) * paredesConfig[i].ancho;
-            z += Math.sin(angulo) * paredesConfig[i].ancho;
-            puntos.push([x, z]);
-        }
-
-        for (let i = 0; i < 4; i++) {
-            const pared = paredesConfig[i];
-            if (pared.ancho <= 0 || pared.alto <= 0) continue;
-
-            const [x1, z1] = puntos[i]; const [x2, z2] = puntos[i + 1];
-            const centroX = (x1 + x2) / 2; const centroZ = (z1 + z2) / 2;
-            const rotacion = (i % 2 === 0) ? 0 : Math.PI / 2;
-
-            const mesh = new THREE.Mesh(
-                new THREE.BoxGeometry(pared.ancho, pared.alto, 0.1),
-                new THREE.MeshStandardMaterial({ 
-                    color: modelos[pared.modelo].color,
-                    transparent: pared.modelo === 'ninguno',
-                    opacity: pared.modelo === 'ninguno' ? 0.3 : 1
-                })
-            );
-            mesh.position.set(centroX - (paredesConfig[0].ancho/2), pared.alto / 2, centroZ + (paredesConfig[1].ancho/2)); 
-            mesh.rotation.y = rotacion;
-            scene.add(mesh); meshesParedes.push(mesh);
-        }
-    }
-
-    function animar() {
-        requestAnimationFrame(animar);
-        controls.update();
-        renderer.render(scene, camera);
-    }
-
-    calcularTotales();
-
-    // --- ENVIAR A WHATSAPP ---
-    function enviarWhatsApp() {
-        const nombre = document.getElementById('cliente-nombre').value;
-        const zona = document.getElementById('cliente-zona').value || 'No especificada';
-        
-        let mensaje = `Hola! Soy *${nombre}* de ${zona}. Hice una cotización en tu web:%0A%0A`;
-        
-        let hayPlacas = false;
-        paredesConfig.forEach((pared, i) => {
-            if(pared.modelo !== 'ninguno') {
-                hayPlacas = true;
-                const m2 = (pared.ancho * pared.alto).toFixed(2);
-                mensaje += `*Pared ${i+1}:* ${pared.ancho}x${pared.alto}m (${m2}m²) - Modelo: ${modelos[pared.modelo].nombre}%0A`;
+            function animar() {
+                requestAnimationFrame(animar);
+                placa.rotation.y += 0.005;
+                renderizador.render(escena, camara);
             }
-        });
-
-        if(!hayPlacas) {
-            alert("No seleccionaste ningún modelo de placa en las paredes.");
-            return;
+            animar();
+            actualizarCotizacion();
         }
 
-        mensaje += `%0A*TOTAL ESTIMADO:* $${precioTotalGlobal.toLocaleString('es-AR')}%0A%0A`;
-        mensaje += `_Quería saber los pasos a seguir para agendar una visita._`;
+        function actualizarCotizacion() {
+            const ancho = parseFloat(document.getElementById('ancho').value) || 0;
+            const largo = parseFloat(document.getElementById('largo').value) || 0;
+            const precioMetro = parseFloat(document.getElementById('modelo').value);
 
-        // Abre el WhatsApp con el texto ya escrito
-        window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${mensaje}`, '_blank');
-    }
+            const metrosCuadrados = ancho * largo;
+            const total = metrosCuadrados * precioMetro;
+            
+            document.getElementById('precio-texto').innerText = '$ ' + total.toLocaleString('es-AR');
 
-</script>
+            if (ancho > 0 && largo > 0) {
+                placa.scale.set(ancho, 1, largo);
+                const medidaMayor = Math.max(ancho, largo);
+                camara.position.z = medidaMayor * 1.5 + 2;
+                camara.position.y = medidaMayor * 0.5 + 1;
+                camara.lookAt(0, 0, 0);
+            }
+        }
+
+        function enviarWhatsApp() {
+            const ancho = document.getElementById('ancho').value;
+            const largo = document.getElementById('largo').value;
+            const select = document.getElementById('modelo');
+            const modeloNombre = select.options[select.selectedIndex].text;
+            const precioFinal = document.getElementById('precio-texto').innerText;
+            
+            // ACORDATE DE CAMBIAR ESTE NÚMERO
+            const numero = "5491131895060"; 
+            
+            const mensaje = `Hola JF Reformas! Estuve viendo el cotizador y me gustaría encargar una instalación.%0A%0A📏 Medidas: ${ancho}m x ${largo}m%0A🎨 Modelo: ${modeloNombre}%0A💰 Presupuesto estimado: ${precioFinal}%0A%0A¿Tienen disponibilidad?`;
+            
+            window.open(`https://wa.me/${numero}?text=${mensaje}`, '_blank');
+        }
+
+        window.onload = iniciar3D;
+    </script>
 </body>
 </html>
+
+        
