@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JF Reformas - Cotizador y Catálogo</title>
     
-    <!-- Librerías de Three.js, Controles de Cámara y Generador de PDF -->
+    <!-- Librerías de Three.js y Controles de Cámara -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         /* --- VARIABLES DE COLOR Y ESTILO --- */
@@ -228,8 +227,8 @@
                     <p>Costo de Instalación: <b id="res-instalacion">$0</b></p>
                     <h3 class="total-destacado">Total Estimado: <b id="res-total">$0</b> ARS</h3>
                     
-                    <!-- Botón para Descargar Presupuesto PDF -->
-                    <button class="btn-primario" onclick="generarPDFPresupuesto()" style="background: var(--gold); color: var(--black); margin-top: 15px;">📥 Descargar Presupuesto en PDF</button>
+                    <!-- Botón para ver el PDF con el sistema nativo -->
+                    <button class="btn-primario" onclick="generarPDFPresupuesto()" style="background: var(--gold); color: var(--black); margin-top: 15px;">📄 Ver / Guardar Presupuesto PDF</button>
                     
                     <button class="btn-wsp" onclick="enviarWspCotizacion()">Coordinar por WhatsApp</button>
                 </div>
@@ -430,9 +429,9 @@
 
                     detalleHtmlTabla += `
                         <tr>
-                            <td style="border: 1px solid #ddd; padding: 8px;"><b>${estadoParedes[i].nombre}</b></td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${largo} m x ${alto} m (${areaPared.toFixed(2)} m²)</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${placasPared} u. - ${productoObj.nombre}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;"><b>${estadoParedes[i].nombre}</b></td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">${largo} m x ${alto} m (${areaPared.toFixed(2)} m²)</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">${placasPared} u. - ${productoObj.nombre}</td>
                         </tr>
                     `;
 
@@ -478,44 +477,73 @@
             }
         }
 
-        // --- GENERADOR DE PDF (CONECTADO AL DOM PARA EVITAR ARCHIVOS VACÍOS) ---
+        // --- GENERADOR DE PDF NATIVO (ABRE VENTANA DE IMPRESIÓN/PDF) ---
         function generarPDFPresupuesto() {
             if (!cotizacionActual.area || cotizacionActual.area == 0) {
                 alert("Primero debés calcular un presupuesto.");
                 return;
             }
 
+            const ventanaPrint = window.open('', '_blank');
             const fechaActual = new Date().toLocaleDateString('es-AR');
 
-            const elementoTemp = document.createElement('div');
-            elementoTemp.style.position = 'absolute';
-            elementoTemp.style.left = '-9999px';
-            elementoTemp.style.top = '0';
-            elementoTemp.innerHTML = `
-                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #111; padding: 25px; max-width: 700px; background: #fff;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #D4AF37; padding-bottom: 15px; margin-bottom: 20px;">
+            const htmlContenido = `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Presupuesto - JF Reformas</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #111; padding: 40px; max-width: 800px; margin: auto; }
+                        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #D4AF37; padding-bottom: 20px; margin-bottom: 30px; }
+                        .logo { max-height: 80px; width: auto; }
+                        .empresa-info { text-align: right; font-size: 14px; color: #555; line-height: 1.4; }
+                        h1 { color: #111; font-size: 24px; margin: 0 0 5px 0; }
+                        .info-grid { display: flex; justify-content: space-between; margin-bottom: 30px; background: #f9f9f9; padding: 15px; border-radius: 8px; font-size: 14px; border: 1px solid #eee; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 14px; }
+                        th { background-color: #111; color: #D4AF37; }
+                        .totales-box { width: 320px; margin-left: auto; background: #111; color: #fff; padding: 20px; border-radius: 8px; border: 2px solid #D4AF37; }
+                        .totales-box p { display: flex; justify-content: space-between; margin: 10px 0; font-size: 14px; }
+                        .totales-box .total-final { font-size: 18px; font-weight: bold; color: #D4AF37; border-top: 1px solid #444; padding-top: 10px; margin-top: 10px; }
+                        .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 20px; }
+                        
+                        @media print {
+                            body { padding: 10px; }
+                            button { display: none !important; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div style="text-align: right; margin-bottom: 15px;">
+                        <button onclick="window.print()" style="background: #111; color: #D4AF37; border: 2px solid #D4AF37; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 16px;">🖨️ Imprimir / Guardar como PDF</button>
+                    </div>
+
+                    <div class="header">
                         <div>
-                            <h1 style="color: #111; font-size: 20px; margin: 0 0 5px 0;">Presupuesto de Revestimiento PVC</h1>
-                            <p style="margin: 0; font-size: 13px; color: #555;">JF Reformas - Tel: 11-3189-5060</p>
+                            <img src="image3.jpg" class="logo" alt="JF Reformas" onerror="this.style.display='none'">
+                            <h1>Presupuesto de Revestimiento PVC</h1>
                         </div>
-                        <div style="text-align: right; font-size: 13px; color: #555;">
+                        <div class="empresa-info">
+                            <strong>JF Reformas</strong><br>
+                            Teléfono: 11-3189-5060<br>
                             Fecha: ${fechaActual}
                         </div>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; background: #f9f9f9; padding: 12px; border-radius: 8px; font-size: 13px;">
+                    <div class="info-grid">
                         <div><strong>Tipo de Ambiente:</strong> ${cotizacionActual.ambiente}</div>
                         <div><strong>Área Total:</strong> ${cotizacionActual.area} m²</div>
-                        <div><strong>Placas:</strong> ${cotizacionActual.placas} u.</div>
+                        <div><strong>Placas Necesarias:</strong> ${cotizacionActual.placas} u.</div>
                     </div>
 
-                    <h3 style="font-size: 15px; margin-bottom: 10px;">Desglose del Proyecto por Pared:</h3>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <h3 style="font-size: 16px; margin-bottom: 12px;">Desglose del Proyecto por Pared:</h3>
+                    <table>
                         <thead>
                             <tr>
-                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #111; color: #D4AF37; font-size: 13px; text-align: left;">Ubicación</th>
-                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #111; color: #D4AF37; font-size: 13px; text-align: left;">Medidas</th>
-                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #111; color: #D4AF37; font-size: 13px; text-align: left;">Material / Placas</th>
+                                <th>Ubicación</th>
+                                <th>Medidas (Largo x Alto)</th>
+                                <th>Material / Placas</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -523,37 +551,21 @@
                         </tbody>
                     </table>
 
-                    <div style="width: 280px; margin-left: auto; background: #111; color: #fff; padding: 12px; border-radius: 8px; border: 2px solid #D4AF37; font-size: 13px;">
-                        <p style="display: flex; justify-content: space-between; margin: 5px 0;"><span>Costo Materiales:</span> <span>$${cotizacionActual.materiales.toLocaleString('es-AR')}</span></p>
-                        <p style="display: flex; justify-content: space-between; margin: 5px 0;"><span>Costo Instalación:</span> <span>$${cotizacionActual.instalacion.toLocaleString('es-AR')}</span></p>
-                        <div style="font-size: 16px; font-weight: bold; color: #D4AF37; border-top: 1px solid #444; padding-top: 6px; margin-top: 6px; display: flex; justify-content: space-between;"><span>Total Estimado:</span> <span>$${cotizacionActual.total.toLocaleString('es-AR')}</span></div>
+                    <div class="totales-box">
+                        <p><span>Costo Materiales:</span> <span>$${cotizacionActual.materiales.toLocaleString('es-AR')}</span></p>
+                        <p><span>Costo Instalación:</span> <span>$${cotizacionActual.instalacion.toLocaleString('es-AR')}</span></p>
+                        <div class="total-final"><span>Total Estimado:</span> <span>$${cotizacionActual.total.toLocaleString('es-AR')}</span></div>
                     </div>
 
-                    <div style="margin-top: 30px; text-align: center; font-size: 11px; color: #777; border-top: 1px solid #eee; padding-top: 10px;">
+                    <div class="footer">
                         Presupuesto válido por 15 días. Las medidas finales quedan sujetas a verificación en obra. ¡Gracias por confiar en JF Reformas!
                     </div>
-                </div>
+                </body>
+                </html>
             `;
 
-            // Conectamos temporalmente el elemento al documento para que html2canvas pueda renderizarlo
-            document.body.appendChild(elementoTemp);
-
-            const opt = {
-                margin:       10,
-                filename:     'Presupuesto_JF_Reformas.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().from(elementoTemp).set(opt).save('Presupuesto_JF_Reformas.pdf').then(() => {
-                // Limpiamos el elemento temporal una vez descargado
-                document.body.removeChild(elementoTemp);
-            }).catch(err => {
-                console.error("Error generando PDF:", err);
-                document.body.removeChild(elementoTemp);
-                alert("Ocurrió un error al generar el PDF.");
-            });
+            ventanaPrint.document.write(htmlContenido);
+            ventanaPrint.document.close();
         }
 
         function enviarWspCotizacion() {
