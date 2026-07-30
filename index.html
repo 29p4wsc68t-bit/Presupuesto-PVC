@@ -228,8 +228,8 @@
                     <p>Costo de Instalación: <b id="res-instalacion">$0</b></p>
                     <h3 class="total-destacado">Total Estimado: <b id="res-total">$0</b> ARS</h3>
                     
-                    <!-- Botón para Ver PDF en Visor -->
-                    <button class="btn-primario" onclick="generarPDFPresupuesto()" style="background: var(--gold); color: var(--black); margin-top: 15px;">📄 Ver Presupuesto en PDF</button>
+                    <!-- Botón para Descargar Presupuesto PDF (Optimizado para Celular) -->
+                    <button class="btn-primario" onclick="generarPDFPresupuesto()" style="background: var(--gold); color: var(--black); margin-top: 15px;">📥 Descargar Presupuesto en PDF</button>
                     
                     <button class="btn-wsp" onclick="enviarWspCotizacion()">Coordinar por WhatsApp</button>
                 </div>
@@ -478,7 +478,7 @@
             }
         }
 
-        // --- GENERADOR DE PDF EN VISOR ---
+        // --- GENERADOR DE PDF (DESCARGA OPTIMIZADA PARA MÓVIL) ---
         function generarPDFPresupuesto() {
             if (!cotizacionActual.area || cotizacionActual.area == 0) {
                 alert("Primero debés calcular un presupuesto.");
@@ -540,11 +540,8 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Generamos el PDF como Blob y lo abrimos en nueva pestaña
-            html2pdf().from(elementoTemp).set(opt).outputPdf('blob').then(function(pdfBlob) {
-                const blobURL = URL.createObjectURL(pdfBlob);
-                window.open(blobURL, '_blank');
-            });
+            // Descarga directa compatible 100% con celulares y PC
+            html2pdf().from(elementoTemp).set(opt).save('Presupuesto_JF_Reformas.pdf');
         }
 
         function enviarWspCotizacion() {
