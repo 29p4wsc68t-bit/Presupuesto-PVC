@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JF Reformas - Cotizador y Catálogo</title>
     
-    <!-- Librerías de Three.js y Controles de Cámara -->
+    <!-- Librerías de Three.js, Controles de Cámara y Generador de PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         /* --- VARIABLES DE COLOR Y ESTILO --- */
@@ -93,7 +94,7 @@
         .btn-ver-mas { background: var(--bg-color); border: 1px solid #ddd; padding: 10px 20px; border-radius: 30px; color: var(--black); font-weight: bold; width: 100%; cursor: pointer; transition: var(--transition);}
         .producto-card:hover .btn-ver-mas { background: var(--black); color: var(--gold); border-color: var(--black); }
 
-        /* MODAL DE DETALLES DEL PRODUCTO Y PRESUPUESTO */
+        /* MODALES */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 1001; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;}
         .modal-content { background: var(--white); width: 100%; max-width: 650px; max-height: 90vh; border-radius: var(--border-rad); overflow-y: auto; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
         .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: var(--black); background: var(--white); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; transition: var(--transition); z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.2);}
@@ -111,16 +112,16 @@
         .add-cart-controls { display: flex; gap: 15px; margin-top: 10px; align-items: center; }
         .add-cart-controls input { width: 80px; text-align: center; border-radius: 10px; border: 1px solid #ccc; font-weight: bold; padding: 12px; font-size: 16px;}
         
-        /* ESTILOS ESPECÍFICOS PARA LA VISTA PREVIA DEL PRESUPUESTO */
-        .presupuesto-preview { padding: 30px; background: white; color: #111; font-family: inherit; }
-        .presupuesto-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 15px; margin-bottom: 20px; }
-        .presupuesto-logo { max-height: 60px; width: auto; }
-        .presupuesto-tabla { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .presupuesto-tabla th, .presupuesto-tabla td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
+        /* ESTILOS DE LA VISTA PREVIA DEL PRESUPUESTO (OPTIMIZADO PARA 1 PÁGINA) */
+        .presupuesto-preview { padding: 25px; background: white; color: #111; font-family: inherit; height: auto; }
+        .presupuesto-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 12px; margin-bottom: 15px; }
+        .presupuesto-logo { max-height: 50px; width: auto; }
+        .presupuesto-tabla { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .presupuesto-tabla th, .presupuesto-tabla td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
         .presupuesto-tabla th { background-color: var(--black); color: var(--gold); }
-        .presupuesto-totales { width: 100%; max-width: 300px; margin-left: auto; background: var(--black); color: var(--white); padding: 15px; border-radius: 8px; border: 2px solid var(--gold); font-size: 14px; }
-        .presupuesto-totales p { display: flex; justify-content: space-between; margin: 6px 0; }
-        .presupuesto-final { font-size: 17px; font-weight: bold; color: var(--gold); border-top: 1px solid #444; padding-top: 8px; margin-top: 8px; display: flex; justify-content: space-between; }
+        .presupuesto-totales { width: 100%; max-width: 280px; margin-left: auto; background: var(--black); color: var(--white); padding: 12px; border-radius: 8px; border: 2px solid var(--gold); font-size: 13px; }
+        .presupuesto-totales p { display: flex; justify-content: space-between; margin: 4px 0; }
+        .presupuesto-final { font-size: 15px; font-weight: bold; color: var(--gold); border-top: 1px solid #444; padding-top: 6px; margin-top: 6px; display: flex; justify-content: space-between; }
 
         /* CARRITO LATERAL OFF-CANVAS */
         .carrito-lateral { position: fixed; top: 0; right: -110%; width: 100%; max-width: 400px; height: 100vh; background: var(--white); box-shadow: -10px 0 30px rgba(0,0,0,0.15); transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 1000; display: flex; flex-direction: column; border-left: 2px solid var(--gold);}
@@ -145,15 +146,6 @@
         .btn-flotante { position: fixed; bottom: 20px; right: 20px; background: var(--black); color: var(--gold); border: 2px solid var(--gold); border-radius: 50%; width: 65px; height: 65px; font-size: 24px; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 999; display: flex; justify-content: center; align-items: center; transition: var(--transition); }
         .btn-flotante:hover { transform: scale(1.08); background: var(--gold); color: var(--black); border-color: var(--black);}
         .badge-flotante { position: absolute; top: -5px; right: -5px; background: var(--white); color: var(--black); font-size: 14px; font-weight: bold; border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--gold); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
-
-        /* CONFIGURACIÓN DE IMPRESIÓN / GUARDAR PDF */
-        @media print {
-            body * { visibility: hidden; }
-            #modal-presupuesto, #modal-presupuesto * { visibility: visible; }
-            #modal-presupuesto { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white; padding: 0; }
-            .modal-content { box-shadow: none; max-width: 100%; max-height: none; overflow: visible; }
-            .modal-close, .btn-imprimir-pdf { display: none !important; }
-        }
 
         /* =========================================
            MEDIA QUERIES (ADAPTACIÓN A CELULARES) 
@@ -283,30 +275,32 @@
         </div>
     </div>
 
-    <!-- MODAL DE VISTA PREVIA DEL PRESUPUESTO -->
+    <!-- MODAL DE VISTA PREVIA Y DESCARGA DE PRESUPUESTO -->
     <div id="modal-presupuesto" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-close" onclick="cerrarModalPresupuesto()">×</div>
-            <div class="presupuesto-preview">
+            
+            <!-- CONTENEDOR EXCLUSIVO PARA CONVERTIR A PDF LIMPIO (SIN PÁGINAS EN BLANCO) -->
+            <div id="contenido-presupuesto-pdf" class="presupuesto-preview">
                 <div class="presupuesto-header">
                     <div>
                         <img src="image3.jpg" class="presupuesto-logo" alt="JF Reformas" onerror="this.style.display='none'">
-                        <h2 style="margin: 5px 0 0 0; font-size: 20px;">Presupuesto Oficial</h2>
+                        <h2 style="margin: 5px 0 0 0; font-size: 18px;">Presupuesto Oficial</h2>
                     </div>
-                    <div style="text-align: right; font-size: 13px; color: #555;">
+                    <div style="text-align: right; font-size: 12px; color: #555;">
                         <strong>JF Reformas</strong><br>
                         Tel: 11-3189-5060<br>
                         <span id="presupuesto-fecha"></span>
                     </div>
                 </div>
 
-                <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="background: #f9f9f9; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                     <div><strong>Ambiente:</strong> <span id="p-ambiente"></span></div>
                     <div><strong>Área Total:</strong> <span id="p-area"></span> m²</div>
                     <div><strong>Total Placas:</strong> <span id="p-placas"></span> u.</div>
                 </div>
 
-                <h3 style="font-size: 15px; margin-bottom: 10px;">Detalle por Pared:</h3>
+                <h3 style="font-size: 14px; margin-bottom: 8px;">Detalle por Pared:</h3>
                 <table class="presupuesto-tabla">
                     <thead>
                         <tr>
@@ -326,13 +320,14 @@
                     <div class="presupuesto-final"><span>Total Estimado:</span> <span id="p-tot">$0</span></div>
                 </div>
 
-                <p style="font-size: 11px; color: #777; text-align: center; margin-top: 25px; border-top: 1px solid #eee; padding-top: 10px;">
+                <p style="font-size: 10px; color: #777; text-align: center; margin-top: 20px; border-top: 1px solid #eee; padding-top: 8px;">
                     Presupuesto válido por 15 días. Sujeto a verificación en obra. ¡Gracias por elegir a JF Reformas!
                 </p>
+            </div>
 
-                <div style="text-align: center; margin-top: 20px;">
-                    <button class="btn-primario btn-imprimir-pdf" onclick="window.print()" style="background: var(--gold); color: var(--black); width: auto; padding: 12px 30px;">🖨️ Imprimir / Guardar como PDF</button>
-                </div>
+            <!-- BOTÓN DE DESCARGA DIRECTA (FUERA DEL RECIBO PDF) -->
+            <div style="text-align: center; padding: 15px 25px 25px 25px; background: #fff; border-top: 1px solid #eee;">
+                <button class="btn-primario" onclick="descargarPDFModal()" style="background: var(--gold); color: var(--black); width: auto; padding: 12px 30px; margin-top:0;">📥 Descargar PDF</button>
             </div>
         </div>
     </div>
@@ -572,6 +567,19 @@
 
         function cerrarModalPresupuesto() {
             document.getElementById('modal-presupuesto').style.display = 'none';
+        }
+
+        // --- DESCARGAR PDF LIMPIO (1 SOLA PÁGINA EXACTA) ---
+        function descargarPDFModal() {
+            const elemento = document.getElementById('contenido-presupuesto-pdf');
+            const opt = {
+                margin:       5,
+                filename:     'Presupuesto_JF_Reformas.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(elemento).set(opt).save();
         }
 
         function enviarWspCotizacion() {
