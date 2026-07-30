@@ -4,197 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JF Reformas - Cotizador y Catálogo</title>
-    <!-- Importamos la librería Three.js para el modelo 3D -->
+    
+    <!-- Librerías de Three.js y Controles de Cámara -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
     <style>
         /* ESTILOS GENERALES */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        h1, h2, h3 { color: #222; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; color: #333; }
+        h1, h2, h3, h4 { color: #222; }
+        hr { border: 0; border-top: 1px solid #ddd; margin: 15px 0; }
 
-        /* NAVEGACIÓN (TABS) */
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 10px;
-        }
-        .tab-btn {
-            padding: 10px 20px;
-            cursor: pointer;
-            background: #e0e0e0;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
+        /* NAVEGACIÓN */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        .tab-btn { padding: 10px 20px; cursor: pointer; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; transition: background 0.3s; }
         .tab-btn:hover { background: #d0d0d0; }
-        .tab-btn.active {
-            background: #0056b3;
-            color: white;
-        }
+        .tab-btn.active { background: #0056b3; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
+        /* BOTONES WHATSAPP */
+        .btn-wsp { background: #25D366; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .btn-wsp:hover { background: #1ebe57; }
+
         /* SECCIÓN COTIZADOR */
-        .cotizador-layout {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .formulario {
-            flex: 1;
-            min-width: 300px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .formulario label {
-            display: block;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-        .formulario input, .formulario select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .btn-calcular {
-            width: 100%;
-            margin-top: 20px;
-            padding: 12px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-calcular:hover { background: #218838; }
-        .resultado {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e9ecef;
-            border-radius: 5px;
-            border-left: 5px solid #0056b3;
-        }
+        .cotizador-layout { display: flex; flex-wrap: wrap; gap: 20px; }
+        .formulario, .visor-3d { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .formulario { flex: 1; min-width: 300px; }
+        .visor-3d { flex: 2; min-width: 400px; }
+        
+        .formulario label { display: block; margin-top: 10px; font-weight: bold; }
+        .formulario input, .formulario select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;}
+        
+        .grid-paredes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px; }
+        
+        .btn-calcular { width: 100%; margin-top: 20px; padding: 12px; background: #0056b3; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
+        .btn-calcular:hover { background: #004494; }
+        
+        .resultado { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 5px; border-left: 5px solid #0056b3; }
 
-        /* SECCIÓN 3D */
-        .visor-3d {
-            flex: 2;
-            min-width: 400px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        #canvas-container {
-            width: 100%;
-            height: 400px;
-            background: #ddd;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-        .texturas-btn-container {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-        .textura-btn {
-            min-width: 80px;
-            padding: 8px;
-            cursor: pointer;
-            border: 1px solid #aaa;
-            border-radius: 4px;
-            background: #f9f9f9;
-            text-align: center;
-            font-size: 12px;
-        }
-        .textura-btn:hover { background: #eee; }
+        /* VISUALIZADOR 3D */
+        #canvas-container { width: 100%; height: 400px; background: #ddd; border-radius: 5px; overflow: hidden; margin-bottom: 15px; cursor: grab; }
+        #canvas-container:active { cursor: grabbing; }
+        .texturas-btn-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
+        .textura-btn { min-width: 90px; padding: 8px; cursor: pointer; border: 1px solid #aaa; border-radius: 4px; background: #f9f9f9; text-align: center; font-size: 12px; font-weight: bold; }
+        .textura-btn:hover { background: #eee; border-color: #0056b3; }
 
-        /* SECCIÓN CATÁLOGO (FLIP CARDS) */
-        .catalogo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
-        }
-        .flip-card {
-            background-color: transparent;
-            width: 100%;
-            height: 300px;
-            perspective: 1000px;
-        }
-        .flip-card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border-radius: 8px;
-        }
+        /* CARRITO DE COMPRAS */
+        .carrito-panel { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 2px solid #0056b3; }
+        .carrito-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; }
+        .carrito-vacio { color: #777; font-style: italic; }
+
+        /* CATÁLOGO Y FLIP CARDS */
+        .catalogo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .flip-card { background-color: transparent; width: 100%; height: 340px; perspective: 1000px; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
         .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
-        .flip-card-front, .flip-card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-            box-sizing: border-box;
-        }
-        .flip-card-front {
-            background-color: #fff;
-        }
-        .flip-card-front img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-        .flip-card-back {
-            background-color: #0056b3;
-            color: white;
-            transform: rotateY(180deg);
-        }
-        .flip-card-back h3 { color: white; margin-bottom: 5px; }
-        .precio-badge {
-            background: #ffc107;
-            color: #000;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
+        .flip-card-front { background-color: #fff; }
+        .flip-card-front img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 10px; }
+        .flip-card-back { background-color: #343a40; color: white; transform: rotateY(180deg); }
+        .flip-card-back h3 { margin-top: 0; }
+        .precio-badge { background: #ffc107; color: #000; padding: 5px 10px; border-radius: 15px; font-weight: bold; margin: 10px 0; }
+        
+        /* Controles de agregado al carrito */
+        .add-cart-controls { display: flex; gap: 10px; margin-top: 15px; }
+        .add-cart-controls input { width: 50px; text-align: center; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; }
+        .btn-add { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-add:hover { background: #218838; }
     </style>
 </head>
 <body>
 
     <h1>JF Reformas - Placas de PVC</h1>
 
-    <!-- Pestañas de Navegación -->
+    <!-- Pestañas -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="cambiarTab('cotizador')">Cotizador y Visor 3D</button>
-        <button class="tab-btn" onclick="cambiarTab('catalogo')">Catálogo de Productos</button>
+        <button class="tab-btn active" onclick="cambiarTab('cotizador')">Cotizador y 3D</button>
+        <button class="tab-btn" onclick="cambiarTab('catalogo')">Catálogo y Compras</button>
     </div>
 
     <!-- TAB 1: COTIZADOR Y 3D -->
@@ -203,57 +90,74 @@
             
             <!-- Formulario de Cálculo -->
             <div class="formulario">
-                <h2>Calculá tu presupuesto</h2>
-                <p><i>Nota: Cada placa rinde 2.93 m²</i></p>
+                <h2>Cotizá tu instalación</h2>
                 
-                <label>Largo de la pared (metros):</label>
-                <input type="number" id="largo" step="0.01" min="0" placeholder="Ej: 4.5">
+                <label>Medidas de las 4 paredes (Largo en metros):</label>
+                <div class="grid-paredes">
+                    <input type="number" id="p1" step="0.01" min="0" placeholder="Pared 1 (Ej: 3)">
+                    <input type="number" id="p2" step="0.01" min="0" placeholder="Pared 2 (Ej: 4)">
+                    <input type="number" id="p3" step="0.01" min="0" placeholder="Pared 3 (Ej: 3)">
+                    <input type="number" id="p4" step="0.01" min="0" placeholder="Pared 4 (Ej: 4)">
+                </div>
 
-                <label>Alto de la pared (metros):</label>
+                <label>Alto del techo (metros):</label>
                 <input type="number" id="alto" step="0.01" min="0" placeholder="Ej: 2.6">
 
-                <label>Tipo de Ambiente (Para futura instalación):</label>
+                <label>Tipo de Ambiente:</label>
                 <select id="ambiente">
                     <option value="otro">Ambiente Estándar (Living, Cuarto)</option>
                     <option value="bano">Baño / Ambiente Húmedo</option>
                 </select>
 
-                <button class="btn-calcular" onclick="calcularPresupuesto()">Calcular Costo</button>
+                <button class="btn-calcular" onclick="calcularPresupuesto()">Calcular Presupuesto</button>
 
                 <div id="resultado-box" class="resultado" style="display: none;">
-                    <h3>Resumen de cotización:</h3>
+                    <h3>Resumen:</h3>
                     <p>Área total a cubrir: <b id="res-area">0</b> m²</p>
-                    <p>Placas necesarias: <b id="res-placas">0</b> unidades</p>
+                    <p>Placas necesarias (Rinde 2.93m²): <b id="res-placas">0</b> u.</p>
                     <hr>
                     <p>Costo de Materiales: <b id="res-materiales">$0</b></p>
-                    <p>Costo de Instalación: <b id="res-instalacion">$0</b> <i>(A definir)</i></p>
-                    <h3 style="color: #28a745;">Total Estimado: <b id="res-total">$0</b></h3>
+                    <p>Costo de Instalación: <b id="res-instalacion">$0</b></p>
+                    <h3 style="color: #0056b3;">Total Estimado: <b id="res-total">$0</b></h3>
+                    
+                    <button class="btn-wsp" onclick="enviarWspCotizacion()">Enviar Consulta por WhatsApp</button>
                 </div>
             </div>
 
-            <!-- Visor 3D y Selección de Texturas -->
+            <!-- Visor 3D -->
             <div class="visor-3d">
-                <h2>Visualizador 3D</h2>
-                <p>Elegí un diseño para aplicarlo en las paredes 3D:</p>
-                
-                <!-- Botones generados dinámicamente -->
+                <h2>Habitación 3D (Deslizá para mirar)</h2>
                 <div id="texturas-botones" class="texturas-btn-container"></div>
-                
                 <div id="canvas-container"></div>
             </div>
         </div>
     </div>
 
-    <!-- TAB 2: CATÁLOGO DE PRODUCTOS -->
+    <!-- TAB 2: CATÁLOGO DE PRODUCTOS Y CARRITO -->
     <div id="catalogo" class="tab-content">
-        <h2>Catálogo Completo</h2>
+        
+        <!-- Panel del Carrito de Compras -->
+        <div class="carrito-panel">
+            <h2>🛒 Tu Pedido</h2>
+            <div id="lista-carrito">
+                <p class="carrito-vacio">Aún no agregaste placas a tu pedido.</p>
+            </div>
+            <hr>
+            <h3>Total a Pagar: $<span id="total-carrito">0</span></h3>
+            
+            <label>Tus Datos para el pedido:</label>
+            <input type="text" id="nombre-cliente" placeholder="Nombre y Apellido" style="width:100%; padding:8px; margin-top:5px; margin-bottom:10px;">
+            <button class="btn-wsp" onclick="enviarWspCompra()">Finalizar Compra por WhatsApp</button>
+        </div>
+
+        <h2>Catálogo de Diseños</h2>
         <div id="catalogo-grid" class="catalogo-grid">
             <!-- Las tarjetas se generan por JS -->
         </div>
     </div>
 
     <script>
-        // --- 1. BASE DE DATOS DE PRODUCTOS ---
+        // --- 1. BASE DE DATOS Y VARIABLES ---
         const catalogoPVC = [
             { id: 'serena', nombre: 'Serena', imagen: 'serena.jpg', precio: 30000 },
             { id: 'trentino', nombre: 'Trentino', imagen: 'trentino.jpg', precio: 30000 },
@@ -272,43 +176,56 @@
             { id: 'arabescato', nombre: 'Arabescato', imagen: 'arabescato.jpg', precio: 30000 }
         ];
 
-        const RENDIMIENTO_PLACA = 2.93; // Metros cuadrados por placa
+        const RENDIMIENTO_PLACA = 2.93; 
+        const NUMERO_WSP = "5491131895060"; 
+        
+        // Costos de instalación fijos
+        const COSTO_INSTALACION_ESTANDAR = 55000; 
+        const COSTO_INSTALACION_BANO = 65000;     
 
-        // --- 2. LÓGICA DE PESTAÑAS (TABS) ---
+        // Variables globales para el resumen
+        let cotizacionActual = {};
+        let carrito = [];
+
+        // --- 2. LÓGICA DE PESTAÑAS ---
         function cambiarTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            
             document.getElementById(tabId).classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
-        // --- 3. GENERAR CATÁLOGO Y BOTONES ---
+        // --- 3. GENERAR INTERFAZ ---
         function inicializarUI() {
             const catalogoContainer = document.getElementById('catalogo-grid');
             const botonesContainer = document.getElementById('texturas-botones');
 
             catalogoPVC.forEach(producto => {
-                // Generar Flip Cards para Catálogo
+                // Tarjetas del catálogo con Input para comprar
                 const cardHtml = `
                     <div class="flip-card">
                         <div class="flip-card-inner">
                             <div class="flip-card-front">
-                                <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.src='https://via.placeholder.com/200?text=Imagen+No+Encontrada'">
+                                <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.src='https://via.placeholder.com/200?text=Sin+Imagen'">
                                 <strong>${producto.nombre}</strong>
                             </div>
                             <div class="flip-card-back">
                                 <h3>${producto.nombre}</h3>
-                                <p>Rendimiento: 2.93 m²</p>
-                                <p>Acabado brillante/mate</p>
                                 <div class="precio-badge">$${producto.precio.toLocaleString('es-AR')} ARS</div>
+                                <p>Rinde: 2.93 m² por placa</p>
+                                <hr style="width: 80%; border-color:#555;">
+                                <p style="margin-bottom: 5px; font-size:14px;">¿Cuántas placas querés?</p>
+                                <div class="add-cart-controls">
+                                    <input type="number" id="cant-${producto.id}" min="1" value="1">
+                                    <button class="btn-add" onclick="agregarAlCarrito('${producto.id}')">Agregar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
                 catalogoContainer.innerHTML += cardHtml;
 
-                // Generar Botones para el Modelo 3D
+                // Botones del Visor 3D
                 const btnHtml = `<button class="textura-btn" onclick="cambiarTexturaPared('${producto.imagen}')">${producto.nombre}</button>`;
                 botonesContainer.innerHTML += btnHtml;
             });
@@ -316,39 +233,49 @@
 
         // --- 4. LÓGICA DEL COTIZADOR ---
         function calcularPresupuesto() {
-            const largo = parseFloat(document.getElementById('largo').value) || 0;
+            const p1 = parseFloat(document.getElementById('p1').value) || 0;
+            const p2 = parseFloat(document.getElementById('p2').value) || 0;
+            const p3 = parseFloat(document.getElementById('p3').value) || 0;
+            const p4 = parseFloat(document.getElementById('p4').value) || 0;
             const alto = parseFloat(document.getElementById('alto').value) || 0;
             const ambiente = document.getElementById('ambiente').value;
 
-            if (largo === 0 || alto === 0) {
-                alert("Por favor ingresá medidas válidas (largo y alto).");
+            const perimetro = p1 + p2 + p3 + p4;
+
+            if (perimetro === 0 || alto === 0) {
+                alert("Por favor ingresá la medida de al menos una pared y el alto del techo.");
                 return;
             }
 
-            // Cálculos
-            const areaTotal = largo * alto;
-            // Se redondea hacia arriba porque no se puede vender media placa
+            const areaTotal = perimetro * alto;
             const placasNecesarias = Math.ceil(areaTotal / RENDIMIENTO_PLACA);
             
-            // PRECIO MATERIALES: Cantidad de placas * $30.000 (el precio está en el array)
-            const precioPorPlaca = catalogoPVC[0].precio; // Tomamos el precio general
+            const precioPorPlaca = catalogoPVC[0].precio; 
             const costoMateriales = placasNecesarias * precioPorPlaca;
 
-            // COSTO INSTALACIÓN: Pendiente a definir por JF Reformas
+            // Lógica de costo de instalación según ambiente
             let costoInstalacion = 0; 
             if (ambiente === 'bano') {
-                // Aquí pondrás tu fórmula para baño cuando la tengas
-                costoInstalacion = 0; 
+                costoInstalacion = placasNecesarias * COSTO_INSTALACION_BANO;
             } else {
-                // Aquí pondrás tu fórmula para otros ambientes
-                costoInstalacion = 0; 
+                costoInstalacion = placasNecesarias * COSTO_INSTALACION_ESTANDAR;
             }
 
             const total = costoMateriales + costoInstalacion;
 
-            // Mostrar Resultados
-            document.getElementById('res-area').innerText = areaTotal.toFixed(2);
-            document.getElementById('res-placas').innerText = placasNecesarias;
+            // Guardamos datos para enviar por WSP
+            cotizacionActual = {
+                area: areaTotal.toFixed(2),
+                placas: placasNecesarias,
+                ambiente: ambiente === 'bano' ? "Baño" : "Estándar",
+                materiales: costoMateriales,
+                instalacion: costoInstalacion,
+                total: total
+            };
+
+            // Mostrar en pantalla
+            document.getElementById('res-area').innerText = cotizacionActual.area;
+            document.getElementById('res-placas').innerText = cotizacionActual.placas;
             document.getElementById('res-materiales').innerText = "$" + costoMateriales.toLocaleString('es-AR');
             document.getElementById('res-instalacion').innerText = "$" + costoInstalacion.toLocaleString('es-AR');
             document.getElementById('res-total').innerText = "$" + total.toLocaleString('es-AR');
@@ -356,103 +283,192 @@
             document.getElementById('resultado-box').style.display = 'block';
         }
 
-        // --- 5. LÓGICA THREE.JS (VISOR 3D) ---
+        function enviarWspCotizacion() {
+            const texto = `¡Hola JF Reformas! Quisiera avanzar con una instalación de PVC. 
+Acabo de usar el cotizador de la web y mis datos son:
+- Área total: ${cotizacionActual.area} m²
+- Placas necesarias: ${cotizacionActual.placas}
+- Tipo de ambiente: ${cotizacionActual.ambiente}
+- Presupuesto Materiales: $${cotizacionActual.materiales.toLocaleString('es-AR')}
+- Presupuesto Instalación: $${cotizacionActual.instalacion.toLocaleString('es-AR')}
+*TOTAL ESTIMADO: $${cotizacionActual.total.toLocaleString('es-AR')}*
+
+¿Podemos coordinar?`;
+            
+            window.open(`https://wa.me/${NUMERO_WSP}?text=${encodeURIComponent(texto)}`, '_blank');
+        }
+
+        // --- 5. LÓGICA DEL CARRITO (CATÁLOGO) ---
+        function agregarAlCarrito(idProducto) {
+            const cantidad = parseInt(document.getElementById(`cant-${idProducto}`).value);
+            const producto = catalogoPVC.find(p => p.id === idProducto);
+            
+            // Ver si ya existe en el carrito para sumar la cantidad
+            const itemExistente = carrito.find(item => item.id === idProducto);
+            if (itemExistente) {
+                itemExistente.cantidad += cantidad;
+            } else {
+                carrito.push({ ...producto, cantidad: cantidad });
+            }
+            
+            actualizarCarritoUI();
+            alert(`${cantidad} placa/s de ${producto.nombre} agregadas al pedido.`);
+        }
+
+        function eliminarDelCarrito(idProducto) {
+            carrito = carrito.filter(item => item.id !== idProducto);
+            actualizarCarritoUI();
+        }
+
+        function actualizarCarritoUI() {
+            const lista = document.getElementById('lista-carrito');
+            const spanTotal = document.getElementById('total-carrito');
+            
+            lista.innerHTML = "";
+            let totalPlata = 0;
+
+            if (carrito.length === 0) {
+                lista.innerHTML = `<p class="carrito-vacio">Aún no agregaste placas a tu pedido.</p>`;
+                spanTotal.innerText = "0";
+                return;
+            }
+
+            carrito.forEach(item => {
+                const subtotal = item.precio * item.cantidad;
+                totalPlata += subtotal;
+                lista.innerHTML += `
+                    <div class="carrito-item">
+                        <span><b>${item.cantidad}x</b> ${item.nombre}</span>
+                        <span>$${subtotal.toLocaleString('es-AR')} <button onclick="eliminarDelCarrito('${item.id}')" style="background:red; color:white; border:none; border-radius:3px; cursor:pointer; margin-left:10px;">X</button></span>
+                    </div>
+                `;
+            });
+
+            spanTotal.innerText = totalPlata.toLocaleString('es-AR');
+        }
+
+        function enviarWspCompra() {
+            const nombre = document.getElementById('nombre-cliente').value;
+            if (carrito.length === 0) {
+                alert("El carrito está vacío. Agregá productos primero.");
+                return;
+            }
+            if (!nombre) {
+                alert("Por favor, ingresá tu nombre para el pedido.");
+                return;
+            }
+
+            let texto = `¡Hola JF Reformas! Mi nombre es *${nombre}* y quiero hacer el siguiente pedido de materiales por la web:\n\n`;
+            
+            let total = 0;
+            carrito.forEach(item => {
+                texto += `✔️ ${item.cantidad}x placa/s modelo ${item.nombre}\n`;
+                total += item.precio * item.cantidad;
+            });
+
+            texto += `\n*TOTAL A ABONAR: $${total.toLocaleString('es-AR')}*\n\nPor favor indíquenme cómo seguimos con el pago y envío.`;
+
+            window.open(`https://wa.me/${NUMERO_WSP}?text=${encodeURIComponent(texto)}`, '_blank');
+        }
+
+        // --- 6. LÓGICA THREE.JS (VISOR 3D CON ORBIT CONTROLS) ---
         let scene, camera, renderer, walls = [];
         const textureLoader = new THREE.TextureLoader();
 
         function init3D() {
             const container = document.getElementById('canvas-container');
             
-            // Escena y Cámara
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xf0f0f0);
+            
+            // La cámara ahora se ubica ADENTRO de la habitación
             camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(0, 1.5, 4);
+            camera.position.set(0, 1.5, 0.1); 
 
-            // Renderizador
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(renderer.domElement);
 
+            // Controles de Mouse (OrbitControls)
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; 
+            controls.dampingFactor = 0.05;
+            controls.enableZoom = false; // Bloqueamos el zoom para no salir de las paredes
+            controls.target.set(0, 1.5, -1); // Mirando al frente por defecto
+
             // Luces
-            const light = new THREE.AmbientLight(0xffffff, 0.6); // Luz general
-            scene.add(light);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.7)); 
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-            dirLight.position.set(2, 5, 3);
+            dirLight.position.set(0, 4, 0);
             scene.add(dirLight);
 
-            // Piso (para dar contexto)
-            const floorGeo = new THREE.PlaneGeometry(10, 10);
-            const floorMat = new THREE.MeshLambertMaterial({ color: 0xcccccc });
-            const floor = new THREE.Mesh(floorGeo, floorMat);
-            floor.rotation.x = -Math.PI / 2;
-            scene.add(floor);
-
-            // Paredes (Crearemos 3 paredes simulando una habitación)
+            // Habitacion de 4 Paredes (Tamaño 4x4)
             const wallGeo = new THREE.PlaneGeometry(4, 3);
             
-            // Pared Fondo
-            const matFondo = new THREE.MeshLambertMaterial({ color: 0xffffff });
-            const paredFondo = new THREE.Mesh(wallGeo, matFondo);
-            paredFondo.position.set(0, 1.5, -2);
-            scene.add(paredFondo);
-            walls.push(paredFondo);
+            // 1. Pared Frente
+            const paredFrente = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
+            paredFrente.position.set(0, 1.5, -2);
+            scene.add(paredFrente);
+            walls.push(paredFrente);
 
-            // Pared Izquierda
-            const matIzq = new THREE.MeshLambertMaterial({ color: 0xffffff });
-            const paredIzq = new THREE.Mesh(wallGeo, matIzq);
+            // 2. Pared Atrás
+            const paredAtras = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
+            paredAtras.position.set(0, 1.5, 2);
+            paredAtras.rotation.y = Math.PI; // Invertida para mirar adentro
+            scene.add(paredAtras);
+            walls.push(paredAtras);
+
+            // 3. Pared Izquierda
+            const paredIzq = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
             paredIzq.position.set(-2, 1.5, 0);
             paredIzq.rotation.y = Math.PI / 2;
             scene.add(paredIzq);
             walls.push(paredIzq);
 
-            // Pared Derecha
-            const matDer = new THREE.MeshLambertMaterial({ color: 0xffffff });
-            const paredDer = new THREE.Mesh(wallGeo, matDer);
+            // 4. Pared Derecha
+            const paredDer = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
             paredDer.position.set(2, 1.5, 0);
             paredDer.rotation.y = -Math.PI / 2;
             scene.add(paredDer);
             walls.push(paredDer);
 
-            // Cargar una textura por defecto (opcional)
-            if(catalogoPVC.length > 0) {
-                cambiarTexturaPared(catalogoPVC[0].imagen);
-            }
+            // Piso y Techo para más inmersión
+            const floorGeo = new THREE.PlaneGeometry(4, 4);
+            const floor = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0x999999 }));
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
 
+            const ceiling = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xe0e0e0 }));
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.y = 3;
+            scene.add(ceiling);
+
+            // Cargar primer diseño
+            if(catalogoPVC.length > 0) cambiarTexturaPared(catalogoPVC[0].imagen);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update(); // Necesario para OrbitControls
+                renderer.render(scene, camera);
+            }
             animate();
         }
 
-        // Función para actualizar la textura de las paredes
+        // Actualizar la textura de TODAS las paredes
         function cambiarTexturaPared(urlImagen) {
-            textureLoader.load(
-                urlImagen, 
-                function(textura) {
-                    // Ajustamos cómo se repite la textura para que simule placas
-                    textura.wrapS = THREE.RepeatWrapping;
-                    textura.wrapT = THREE.RepeatWrapping;
-                    textura.repeat.set(2, 1); 
-                    
-                    walls.forEach(wall => {
-                        wall.material.map = textura;
-                        wall.material.needsUpdate = true;
-                    });
-                },
-                undefined,
-                function(error) {
-                    console.error("Error cargando la textura en 3D (verificá que la imagen exista):", error);
-                }
-            );
+            textureLoader.load(urlImagen, function(textura) {
+                textura.wrapS = THREE.RepeatWrapping;
+                textura.wrapT = THREE.RepeatWrapping;
+                textura.repeat.set(2, 1); 
+                
+                walls.forEach(wall => {
+                    wall.material.map = textura;
+                    wall.material.needsUpdate = true;
+                });
+            });
         }
 
-        function animate() {
-            requestAnimationFrame(animate);
-            // Pequeña rotación automática de cámara para apreciarlo mejor
-            camera.position.x = Math.sin(Date.now() * 0.0005) * 1;
-            camera.lookAt(0, 1.5, 0);
-            renderer.render(scene, camera);
-        }
-
-        // Ajustar renderizador al cambiar tamaño de ventana
+        // Ajuste en cambio de pantalla
         window.addEventListener('resize', () => {
             const container = document.getElementById('canvas-container');
             if(container && renderer) {
@@ -462,7 +478,7 @@
             }
         });
 
-        // --- 6. INICIAR TODO AL CARGAR LA PÁGINA ---
+        // --- 7. INICIO ---
         window.onload = () => {
             inicializarUI();
             init3D();
