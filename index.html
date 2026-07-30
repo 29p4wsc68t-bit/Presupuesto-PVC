@@ -228,7 +228,7 @@
                     <p>Costo de Instalación: <b id="res-instalacion">$0</b></p>
                     <h3 class="total-destacado">Total Estimado: <b id="res-total">$0</b> ARS</h3>
                     
-                    <!-- Botón para Descargar Presupuesto PDF (Optimizado para Celular) -->
+                    <!-- Botón para Descargar Presupuesto PDF -->
                     <button class="btn-primario" onclick="generarPDFPresupuesto()" style="background: var(--gold); color: var(--black); margin-top: 15px;">📥 Descargar Presupuesto en PDF</button>
                     
                     <button class="btn-wsp" onclick="enviarWspCotizacion()">Coordinar por WhatsApp</button>
@@ -478,7 +478,7 @@
             }
         }
 
-        // --- GENERADOR DE PDF (DESCARGA OPTIMIZADA PARA MÓVIL) ---
+        // --- GENERADOR DE PDF (CONECTADO AL DOM PARA EVITAR ARCHIVOS VACÍOS) ---
         function generarPDFPresupuesto() {
             if (!cotizacionActual.area || cotizacionActual.area == 0) {
                 alert("Primero debés calcular un presupuesto.");
@@ -488,6 +488,9 @@
             const fechaActual = new Date().toLocaleDateString('es-AR');
 
             const elementoTemp = document.createElement('div');
+            elementoTemp.style.position = 'absolute';
+            elementoTemp.style.left = '-9999px';
+            elementoTemp.style.top = '0';
             elementoTemp.innerHTML = `
                 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #111; padding: 25px; max-width: 700px; background: #fff;">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #D4AF37; padding-bottom: 15px; margin-bottom: 20px;">
@@ -532,6 +535,9 @@
                 </div>
             `;
 
+            // Conectamos temporalmente el elemento al documento para que html2canvas pueda renderizarlo
+            document.body.appendChild(elementoTemp);
+
             const opt = {
                 margin:       10,
                 filename:     'Presupuesto_JF_Reformas.pdf',
@@ -540,8 +546,14 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Descarga directa compatible 100% con celulares y PC
-            html2pdf().from(elementoTemp).set(opt).save('Presupuesto_JF_Reformas.pdf');
+            html2pdf().from(elementoTemp).set(opt).save('Presupuesto_JF_Reformas.pdf').then(() => {
+                // Limpiamos el elemento temporal una vez descargado
+                document.body.removeChild(elementoTemp);
+            }).catch(err => {
+                console.error("Error generando PDF:", err);
+                document.body.removeChild(elementoTemp);
+                alert("Ocurrió un error al generar el PDF.");
+            });
         }
 
         function enviarWspCotizacion() {
