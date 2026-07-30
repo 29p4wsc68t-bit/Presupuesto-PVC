@@ -93,21 +93,23 @@
         .btn-ver-mas { background: var(--bg-color); border: 1px solid #ddd; padding: 10px 20px; border-radius: 30px; color: var(--black); font-weight: bold; width: 100%; cursor: pointer; transition: var(--transition);}
         .producto-card:hover .btn-ver-mas { background: var(--black); color: var(--gold); border-color: var(--black); }
 
-        /* MODAL DE DETALLES DEL PRODUCTO */
+        /* MODAL DE DETALLES DEL PRODUCTO (DISEÑO VERTICAL ROBUSTO) */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 1001; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;}
-        .modal-content { background: var(--white); width: 100%; max-width: 750px; max-height: 90vh; border-radius: var(--border-rad); overflow-y: auto; display: flex; flex-wrap: wrap; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .modal-content { background: var(--white); width: 100%; max-width: 550px; max-height: 90vh; border-radius: var(--border-rad); overflow-y: auto; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
         .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: var(--black); background: var(--white); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; transition: var(--transition); z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.2);}
         .modal-close:hover { background: var(--gold); color: var(--white); }
-        .modal-img { flex: 1; min-width: 280px; background: #eee; }
-        .modal-img img { width: 100%; height: 100%; object-fit: cover; min-height: 250px; display: block; }
-        .modal-body { flex: 1.5; padding: 25px; min-width: 280px; display: flex; flex-direction: column;}
+        
+        .modal-img { width: 100%; height: 260px; background: #eee; flex-shrink: 0; }
+        .modal-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        
+        .modal-body { padding: 25px; display: flex; flex-direction: column; flex-grow: 1;}
         .modal-body h2 { margin-top: 0; color: var(--black); font-size: 24px;}
         .badge-precio { display: inline-block; background: var(--black); color: var(--gold); padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 18px; margin-bottom: 15px; border: 1px solid var(--gold);}
         .modal-desc { margin-bottom: 15px; font-size: 15px; line-height: 1.5; color: #555; }
-        .modal-rec { background: var(--bg-color); padding: 12px; border-left: 4px solid var(--gold); font-size: 14px; margin-bottom: 15px; border-radius: 0 8px 8px 0; color: #444;}
+        .modal-rec { background: var(--bg-color); padding: 12px; border-left: 4px solid var(--gold); font-size: 14px; margin-bottom: 20px; border-radius: 0 8px 8px 0; color: #444;}
         
-        .add-cart-controls { display: flex; gap: 15px; margin-top: 15px; align-items: center; flex-wrap: wrap;}
-        .add-cart-controls input { width: 80px; text-align: center; border-radius: 10px; border: 1px solid #ccc; font-weight: bold; padding: 12px; font-size: 16px; flex-grow: 0;}
+        .add-cart-controls { display: flex; gap: 15px; margin-top: 10px; align-items: center; }
+        .add-cart-controls input { width: 80px; text-align: center; border-radius: 10px; border: 1px solid #ccc; font-weight: bold; padding: 12px; font-size: 16px;}
         
         /* CARRITO LATERAL OFF-CANVAS */
         .carrito-lateral { position: fixed; top: 0; right: -110%; width: 100%; max-width: 400px; height: 100vh; background: var(--white); box-shadow: -10px 0 30px rgba(0,0,0,0.15); transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 1000; display: flex; flex-direction: column; border-left: 2px solid var(--gold);}
@@ -145,13 +147,6 @@
             .catalogo-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
             .producto-card img { height: 140px; }
             
-            .modal-content { flex-direction: column; max-height: 85vh; }
-            .modal-img { min-width: 100%; }
-            .modal-img img { min-height: 200px; height: 200px; }
-            .modal-body { min-width: 100%; padding: 20px; }
-            .add-cart-controls { flex-direction: row; justify-content: space-between; }
-            .btn-primario#btn-modal-add { width: auto; flex-grow: 1; margin-top: 0; }
-            
             .carrito-lateral { max-width: 100%; border-left: none; }
             .carrito-header { padding: 15px; }
             .carrito-body { padding: 15px; }
@@ -161,7 +156,7 @@
 </head>
 <body>
 
-    <!-- LOGO DE LA EMPRESA (ACTUALIZADO) -->
+    <!-- LOGO DE LA EMPRESA -->
     <div class="header-container">
         <img src="image3.jpg" alt="Logo JF Reformas" class="logo-principal" onerror="this.src='https://via.placeholder.com/300x120?text=Logo+JF+Reformas'">
     </div>
@@ -264,7 +259,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE PRODUCTO -->
+    <!-- MODAL DE PRODUCTO (DISEÑO VERTICAL FIJO) -->
     <div id="modal-producto" class="modal-overlay" onclick="cerrarModalFuera(event)">
         <div class="modal-content">
             <div class="modal-close" onclick="cerrarModal()">×</div>
@@ -285,7 +280,7 @@
                 <p style="margin-bottom: 5px; font-weight: bold; color: var(--black);">¿Cuántas vas a llevar?</p>
                 <div class="add-cart-controls">
                     <input type="number" id="modal-cantidad" min="1" value="1">
-                    <button class="btn-primario" id="btn-modal-add">Agregar al Pedido</button>
+                    <button class="btn-primario" id="btn-modal-add" style="margin-top: 0; flex-grow: 1;">Agregar al Pedido</button>
                 </div>
             </div>
         </div>
