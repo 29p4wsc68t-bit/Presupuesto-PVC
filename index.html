@@ -44,7 +44,7 @@
         .resultado { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 5px; border-left: 5px solid #0056b3; }
 
         /* VISUALIZADOR 3D */
-        #canvas-container { width: 100%; height: 400px; background: #ddd; border-radius: 5px; overflow: hidden; margin-bottom: 15px; cursor: grab; }
+        #canvas-container { width: 100%; height: 400px; background: #c2c9d1; border-radius: 5px; overflow: hidden; margin-bottom: 15px; cursor: grab; }
         #canvas-container:active { cursor: grabbing; }
         .texturas-btn-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
         .textura-btn { min-width: 90px; padding: 8px; cursor: pointer; border: 1px solid #aaa; border-radius: 4px; background: #f9f9f9; text-align: center; font-size: 12px; font-weight: bold; }
@@ -126,7 +126,7 @@
 
             <!-- Visor 3D -->
             <div class="visor-3d">
-                <h2>Habitación 3D (Deslizá para mirar)</h2>
+                <h2>Habitación 3D (Deslizá y hacé zoom para mirar)</h2>
                 <div id="texturas-botones" class="texturas-btn-container"></div>
                 <div id="canvas-container"></div>
             </div>
@@ -201,7 +201,6 @@
             const botonesContainer = document.getElementById('texturas-botones');
 
             catalogoPVC.forEach(producto => {
-                // Tarjetas del catálogo con Input para comprar
                 const cardHtml = `
                     <div class="flip-card">
                         <div class="flip-card-inner">
@@ -225,7 +224,6 @@
                 `;
                 catalogoContainer.innerHTML += cardHtml;
 
-                // Botones del Visor 3D
                 const btnHtml = `<button class="textura-btn" onclick="cambiarTexturaPared('${producto.imagen}')">${producto.nombre}</button>`;
                 botonesContainer.innerHTML += btnHtml;
             });
@@ -253,7 +251,6 @@
             const precioPorPlaca = catalogoPVC[0].precio; 
             const costoMateriales = placasNecesarias * precioPorPlaca;
 
-            // Lógica de costo de instalación según ambiente
             let costoInstalacion = 0; 
             if (ambiente === 'bano') {
                 costoInstalacion = placasNecesarias * COSTO_INSTALACION_BANO;
@@ -263,7 +260,6 @@
 
             const total = costoMateriales + costoInstalacion;
 
-            // Guardamos datos para enviar por WSP
             cotizacionActual = {
                 area: areaTotal.toFixed(2),
                 placas: placasNecesarias,
@@ -273,7 +269,6 @@
                 total: total
             };
 
-            // Mostrar en pantalla
             document.getElementById('res-area').innerText = cotizacionActual.area;
             document.getElementById('res-placas').innerText = cotizacionActual.placas;
             document.getElementById('res-materiales').innerText = "$" + costoMateriales.toLocaleString('es-AR');
@@ -298,12 +293,11 @@ Acabo de usar el cotizador de la web y mis datos son:
             window.open(`https://wa.me/${NUMERO_WSP}?text=${encodeURIComponent(texto)}`, '_blank');
         }
 
-        // --- 5. LÓGICA DEL CARRITO (CATÁLOGO) ---
+        // --- 5. LÓGICA DEL CARRITO ---
         function agregarAlCarrito(idProducto) {
             const cantidad = parseInt(document.getElementById(`cant-${idProducto}`).value);
             const producto = catalogoPVC.find(p => p.id === idProducto);
             
-            // Ver si ya existe en el carrito para sumar la cantidad
             const itemExistente = carrito.find(item => item.id === idProducto);
             if (itemExistente) {
                 itemExistente.cantidad += cantidad;
@@ -371,7 +365,7 @@ Acabo de usar el cotizador de la web y mis datos son:
             window.open(`https://wa.me/${NUMERO_WSP}?text=${encodeURIComponent(texto)}`, '_blank');
         }
 
-        // --- 6. LÓGICA THREE.JS (VISOR 3D CON ORBIT CONTROLS) ---
+        // --- 6. LÓGICA THREE.JS (VISOR 3D MEJORADO) ---
         let scene, camera, renderer, walls = [];
         const textureLoader = new THREE.TextureLoader();
 
@@ -379,82 +373,87 @@ Acabo de usar el cotizador de la web y mis datos son:
             const container = document.getElementById('canvas-container');
             
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xf0f0f0);
+            // Color de fondo fuera de la habitación (por si hay huecos)
+            scene.background = new THREE.Color(0xdbe9f4); 
             
-            // La cámara ahora se ubica ADENTRO de la habitación
-            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 1000);
             camera.position.set(0, 1.5, 0.1); 
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(renderer.domElement);
 
-            // Controles de Mouse (OrbitControls)
+            // Controles interactivos mejorados
             const controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true; 
             controls.dampingFactor = 0.05;
-            controls.enableZoom = false; // Bloqueamos el zoom para no salir de las paredes
-            controls.target.set(0, 1.5, -1); // Mirando al frente por defecto
+            
+            // Habilitamos el Zoom con límites estrictos para no salir de las paredes
+            controls.enableZoom = true; 
+            controls.minDistance = 0.3; // Lo más cerca de la pared
+            controls.maxDistance = 1.9; // Lo más lejos sin atravesar la pared opuesta
+            
+            // Limitamos el ángulo para que no miren por debajo del suelo
+            controls.maxPolarAngle = Math.PI / 2 - 0.05; 
+            
+            controls.target.set(0, 1.5, -1); 
 
-            // Luces
-            scene.add(new THREE.AmbientLight(0xffffff, 0.7)); 
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-            dirLight.position.set(0, 4, 0);
-            scene.add(dirLight);
+            // Iluminación más amigable y cálida
+            scene.add(new THREE.AmbientLight(0xffffff, 0.6)); // Luz general suave
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6); // Luz natural (cielo/suelo)
+            hemiLight.position.set(0, 4, 0);
+            scene.add(hemiLight);
 
-            // Habitacion de 4 Paredes (Tamaño 4x4)
             const wallGeo = new THREE.PlaneGeometry(4, 3);
             
-            // 1. Pared Frente
-            const paredFrente = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
+            // Paredes (color base más suave)
+            const baseMat = new THREE.MeshLambertMaterial({ color: 0xf5f5f5 });
+
+            const paredFrente = new THREE.Mesh(wallGeo, baseMat);
             paredFrente.position.set(0, 1.5, -2);
             scene.add(paredFrente);
             walls.push(paredFrente);
 
-            // 2. Pared Atrás
-            const paredAtras = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
+            const paredAtras = new THREE.Mesh(wallGeo, baseMat);
             paredAtras.position.set(0, 1.5, 2);
-            paredAtras.rotation.y = Math.PI; // Invertida para mirar adentro
+            paredAtras.rotation.y = Math.PI; 
             scene.add(paredAtras);
             walls.push(paredAtras);
 
-            // 3. Pared Izquierda
-            const paredIzq = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
+            const paredIzq = new THREE.Mesh(wallGeo, baseMat);
             paredIzq.position.set(-2, 1.5, 0);
             paredIzq.rotation.y = Math.PI / 2;
             scene.add(paredIzq);
             walls.push(paredIzq);
 
-            // 4. Pared Derecha
-            const paredDer = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
+            const paredDer = new THREE.Mesh(wallGeo, baseMat);
             paredDer.position.set(2, 1.5, 0);
             paredDer.rotation.y = -Math.PI / 2;
             scene.add(paredDer);
             walls.push(paredDer);
 
-            // Piso y Techo para más inmersión
+            // Piso color madera/beige claro
             const floorGeo = new THREE.PlaneGeometry(4, 4);
-            const floor = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0x999999 }));
+            const floor = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xc2b2a1 }));
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
-            const ceiling = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xe0e0e0 }));
+            // Techo color blanco tiza
+            const ceiling = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xfffaf0 }));
             ceiling.rotation.x = Math.PI / 2;
             ceiling.position.y = 3;
             scene.add(ceiling);
 
-            // Cargar primer diseño
             if(catalogoPVC.length > 0) cambiarTexturaPared(catalogoPVC[0].imagen);
 
             function animate() {
                 requestAnimationFrame(animate);
-                controls.update(); // Necesario para OrbitControls
+                controls.update(); 
                 renderer.render(scene, camera);
             }
             animate();
         }
 
-        // Actualizar la textura de TODAS las paredes
         function cambiarTexturaPared(urlImagen) {
             textureLoader.load(urlImagen, function(textura) {
                 textura.wrapS = THREE.RepeatWrapping;
@@ -468,7 +467,6 @@ Acabo de usar el cotizador de la web y mis datos son:
             });
         }
 
-        // Ajuste en cambio de pantalla
         window.addEventListener('resize', () => {
             const container = document.getElementById('canvas-container');
             if(container && renderer) {
