@@ -30,32 +30,45 @@
         /* SECCIÓN COTIZADOR */
         .cotizador-layout { display: flex; flex-wrap: wrap; gap: 20px; }
         .formulario, .visor-3d { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .formulario { flex: 1; min-width: 300px; }
+        .formulario { flex: 1; min-width: 320px; }
         .visor-3d { flex: 2; min-width: 400px; }
         
         .formulario label { display: block; margin-top: 10px; font-weight: bold; }
-        .formulario input, .formulario select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;}
+        .formulario select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;}
         
-        .grid-paredes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px; }
+        /* GRID DE PAREDES AVANZADO */
+        .grid-paredes-avanzado { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .pared-box { background: #f9f9f9; padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
+        .pared-box h4 { margin: 0 0 10px 0; font-size: 14px; color: #0056b3; }
+        .inputs-medidas { display: flex; gap: 5px; margin-bottom: 8px; }
+        .inputs-medidas input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .diseño-label { margin: 0; font-size: 13px; color: #444; background: #eee; padding: 4px; border-radius: 3px; text-align: center;}
         
         .btn-calcular { width: 100%; margin-top: 20px; padding: 12px; background: #0056b3; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
         .btn-calcular:hover { background: #004494; }
         
         .resultado { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 5px; border-left: 5px solid #0056b3; }
+        .resumen-desglose { margin: 10px 0; padding-left: 20px; font-size: 14px; }
 
         /* VISUALIZADOR 3D */
         #canvas-container { width: 100%; height: 400px; background: #c2c9d1; border-radius: 5px; overflow: hidden; margin-bottom: 15px; cursor: grab; }
         #canvas-container:active { cursor: grabbing; }
+        
+        /* Controles de asignación de textura */
+        .selector-paredes { display: flex; gap: 5px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;}
+        .radio-pared { display: none; }
+        .label-pared { padding: 6px 12px; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; font-size: 13px; background: #fff; font-weight: bold;}
+        .radio-pared:checked + .label-pared { background: #0056b3; color: white; border-color: #0056b3; }
+
         .texturas-btn-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
         .textura-btn { min-width: 90px; padding: 8px; cursor: pointer; border: 1px solid #aaa; border-radius: 4px; background: #f9f9f9; text-align: center; font-size: 12px; font-weight: bold; }
         .textura-btn:hover { background: #eee; border-color: #0056b3; }
 
-        /* CARRITO DE COMPRAS */
+        /* CARRITO DE COMPRAS Y CATÁLOGO */
         .carrito-panel { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 2px solid #0056b3; }
         .carrito-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; }
         .carrito-vacio { color: #777; font-style: italic; }
 
-        /* CATÁLOGO Y FLIP CARDS */
         .catalogo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         .flip-card { background-color: transparent; width: 100%; height: 340px; perspective: 1000px; }
         .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
@@ -67,7 +80,6 @@
         .flip-card-back h3 { margin-top: 0; }
         .precio-badge { background: #ffc107; color: #000; padding: 5px 10px; border-radius: 15px; font-weight: bold; margin: 10px 0; }
         
-        /* Controles de agregado al carrito */
         .add-cart-controls { display: flex; gap: 10px; margin-top: 15px; }
         .add-cart-controls input { width: 50px; text-align: center; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; }
         .btn-add { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
@@ -78,7 +90,6 @@
 
     <h1>JF Reformas - Placas de PVC</h1>
 
-    <!-- Pestañas -->
     <div class="tabs">
         <button class="tab-btn active" onclick="cambiarTab('cotizador')">Cotizador y 3D</button>
         <button class="tab-btn" onclick="cambiarTab('catalogo')">Catálogo y Compras</button>
@@ -91,17 +102,46 @@
             <!-- Formulario de Cálculo -->
             <div class="formulario">
                 <h2>Cotizá tu instalación</h2>
+                <p style="font-size: 14px; color: #666; margin-top: -10px;">Ingresá las medidas solo de las paredes que vas a revestir. Podés asignar diseños distintos en el visor 3D.</p>
                 
-                <label>Medidas de las 4 paredes (Largo en metros):</label>
-                <div class="grid-paredes">
-                    <input type="number" id="p1" step="0.01" min="0" placeholder="Pared 1 (Ej: 3)">
-                    <input type="number" id="p2" step="0.01" min="0" placeholder="Pared 2 (Ej: 4)">
-                    <input type="number" id="p3" step="0.01" min="0" placeholder="Pared 3 (Ej: 3)">
-                    <input type="number" id="p4" step="0.01" min="0" placeholder="Pared 4 (Ej: 4)">
+                <div class="grid-paredes-avanzado">
+                    <!-- Pared 1 -->
+                    <div class="pared-box">
+                        <h4>Pared 1 (Frente)</h4>
+                        <div class="inputs-medidas">
+                            <input type="number" id="p0-largo" step="0.01" min="0" placeholder="Largo (m)">
+                            <input type="number" id="p0-alto" step="0.01" min="0" placeholder="Alto (m)">
+                        </div>
+                        <p class="diseño-label">Diseño: <b id="lbl-mod-0">Serena</b></p>
+                    </div>
+                    <!-- Pared 2 -->
+                    <div class="pared-box">
+                        <h4>Pared 2 (Atrás)</h4>
+                        <div class="inputs-medidas">
+                            <input type="number" id="p1-largo" step="0.01" min="0" placeholder="Largo (m)">
+                            <input type="number" id="p1-alto" step="0.01" min="0" placeholder="Alto (m)">
+                        </div>
+                        <p class="diseño-label">Diseño: <b id="lbl-mod-1">Serena</b></p>
+                    </div>
+                    <!-- Pared 3 -->
+                    <div class="pared-box">
+                        <h4>Pared 3 (Izquierda)</h4>
+                        <div class="inputs-medidas">
+                            <input type="number" id="p2-largo" step="0.01" min="0" placeholder="Largo (m)">
+                            <input type="number" id="p2-alto" step="0.01" min="0" placeholder="Alto (m)">
+                        </div>
+                        <p class="diseño-label">Diseño: <b id="lbl-mod-2">Serena</b></p>
+                    </div>
+                    <!-- Pared 4 -->
+                    <div class="pared-box">
+                        <h4>Pared 4 (Derecha)</h4>
+                        <div class="inputs-medidas">
+                            <input type="number" id="p3-largo" step="0.01" min="0" placeholder="Largo (m)">
+                            <input type="number" id="p3-alto" step="0.01" min="0" placeholder="Alto (m)">
+                        </div>
+                        <p class="diseño-label">Diseño: <b id="lbl-mod-3">Serena</b></p>
+                    </div>
                 </div>
-
-                <label>Alto del techo (metros):</label>
-                <input type="number" id="alto" step="0.01" min="0" placeholder="Ej: 2.6">
 
                 <label>Tipo de Ambiente:</label>
                 <select id="ambiente">
@@ -114,7 +154,10 @@
                 <div id="resultado-box" class="resultado" style="display: none;">
                     <h3>Resumen:</h3>
                     <p>Área total a cubrir: <b id="res-area">0</b> m²</p>
-                    <p>Placas necesarias (Rinde 2.93m²): <b id="res-placas">0</b> u.</p>
+                    <p>Total de Placas necesarias: <b id="res-placas">0</b> u.</p>
+                    <ul id="res-desglose" class="resumen-desglose">
+                        <!-- Desglose de modelos se inyecta por JS -->
+                    </ul>
                     <hr>
                     <p>Costo de Materiales: <b id="res-materiales">$0</b></p>
                     <p>Costo de Instalación: <b id="res-instalacion">$0</b></p>
@@ -126,7 +169,28 @@
 
             <!-- Visor 3D -->
             <div class="visor-3d">
-                <h2>Habitación 3D (Deslizá y hacé zoom para mirar)</h2>
+                <h2>Habitación 3D (Deslizá y hacé zoom)</h2>
+                
+                <!-- Selector de Pared a pintar -->
+                <div class="selector-paredes">
+                    <span style="font-size:14px; margin-right:5px;">Pintar:</span>
+                    
+                    <input type="radio" name="sel-pared" id="sel-todas" value="todos" class="radio-pared" checked>
+                    <label for="sel-todas" class="label-pared">Todas</label>
+                    
+                    <input type="radio" name="sel-pared" id="sel-p0" value="0" class="radio-pared">
+                    <label for="sel-p0" class="label-pared">P1 (Frente)</label>
+                    
+                    <input type="radio" name="sel-pared" id="sel-p1" value="1" class="radio-pared">
+                    <label for="sel-p1" class="label-pared">P2 (Atrás)</label>
+                    
+                    <input type="radio" name="sel-pared" id="sel-p2" value="2" class="radio-pared">
+                    <label for="sel-p2" class="label-pared">P3 (Izq)</label>
+                    
+                    <input type="radio" name="sel-pared" id="sel-p3" value="3" class="radio-pared">
+                    <label for="sel-p3" class="label-pared">P4 (Der)</label>
+                </div>
+
                 <div id="texturas-botones" class="texturas-btn-container"></div>
                 <div id="canvas-container"></div>
             </div>
@@ -135,8 +199,6 @@
 
     <!-- TAB 2: CATÁLOGO DE PRODUCTOS Y CARRITO -->
     <div id="catalogo" class="tab-content">
-        
-        <!-- Panel del Carrito de Compras -->
         <div class="carrito-panel">
             <h2>🛒 Tu Pedido</h2>
             <div id="lista-carrito">
@@ -152,7 +214,7 @@
 
         <h2>Catálogo de Diseños</h2>
         <div id="catalogo-grid" class="catalogo-grid">
-            <!-- Las tarjetas se generan por JS -->
+            <!-- Tarjetas se generan por JS -->
         </div>
     </div>
 
@@ -178,12 +240,17 @@
 
         const RENDIMIENTO_PLACA = 2.93; 
         const NUMERO_WSP = "5491131895060"; 
-        
-        // Costos de instalación fijos
         const COSTO_INSTALACION_ESTANDAR = 55000; 
         const COSTO_INSTALACION_BANO = 65000;     
 
-        // Variables globales para el resumen
+        // Array para trackear qué modelo tiene cada pared asignada.
+        let estadoParedes = [
+            { largoId: 'p0-largo', altoId: 'p0-alto', modeloId: 'serena', nombre: "Pared 1 (Frente)" },
+            { largoId: 'p1-largo', altoId: 'p1-alto', modeloId: 'serena', nombre: "Pared 2 (Atrás)" },
+            { largoId: 'p2-largo', altoId: 'p2-alto', modeloId: 'serena', nombre: "Pared 3 (Izquierda)" },
+            { largoId: 'p3-largo', altoId: 'p3-alto', modeloId: 'serena', nombre: "Pared 4 (Derecha)" }
+        ];
+
         let cotizacionActual = {};
         let carrito = [];
 
@@ -224,65 +291,105 @@
                 `;
                 catalogoContainer.innerHTML += cardHtml;
 
-                const btnHtml = `<button class="textura-btn" onclick="cambiarTexturaPared('${producto.imagen}')">${producto.nombre}</button>`;
+                const btnHtml = `<button class="textura-btn" onclick="cambiarTexturaPared('${producto.id}')">${producto.nombre}</button>`;
                 botonesContainer.innerHTML += btnHtml;
             });
+
+            // Inicializar las etiquetas del formulario con el primer producto
+            if(catalogoPVC.length > 0){
+                estadoParedes.forEach(p => p.modeloId = catalogoPVC[0].id);
+                for(let i=0; i<4; i++) {
+                    document.getElementById(`lbl-mod-${i}`).innerText = catalogoPVC[0].nombre;
+                }
+            }
         }
 
         // --- 4. LÓGICA DEL COTIZADOR ---
         function calcularPresupuesto() {
-            const p1 = parseFloat(document.getElementById('p1').value) || 0;
-            const p2 = parseFloat(document.getElementById('p2').value) || 0;
-            const p3 = parseFloat(document.getElementById('p3').value) || 0;
-            const p4 = parseFloat(document.getElementById('p4').value) || 0;
-            const alto = parseFloat(document.getElementById('alto').value) || 0;
             const ambiente = document.getElementById('ambiente').value;
+            
+            let areaTotal = 0;
+            let totalPlacasGenerales = 0;
+            let totalMateriales = 0;
+            let paredesCompletadas = 0;
+            
+            let detallePlacasPorModelo = {};
+            let textoWspDetalle = "";
 
-            const perimetro = p1 + p2 + p3 + p4;
+            // Recorremos las 4 paredes
+            for (let i = 0; i < 4; i++) {
+                let largo = parseFloat(document.getElementById(estadoParedes[i].largoId).value) || 0;
+                let alto = parseFloat(document.getElementById(estadoParedes[i].altoId).value) || 0;
 
-            if (perimetro === 0 || alto === 0) {
-                alert("Por favor ingresá la medida de al menos una pared y el alto del techo.");
+                if (largo > 0 && alto > 0) {
+                    paredesCompletadas++;
+                    
+                    let areaPared = largo * alto;
+                    areaTotal += areaPared;
+                    
+                    let placasPared = Math.ceil(areaPared / RENDIMIENTO_PLACA);
+                    totalPlacasGenerales += placasPared;
+                    
+                    let productoObj = catalogoPVC.find(p => p.id === estadoParedes[i].modeloId);
+                    totalMateriales += placasPared * productoObj.precio;
+                    
+                    // Texto para WhatsApp
+                    textoWspDetalle += `- ${estadoParedes[i].nombre}: ${largo}x${alto}m (${placasPared} placas modelo ${productoObj.nombre})\n`;
+
+                    // Sumatoria para el resumen en pantalla
+                    if (detallePlacasPorModelo[productoObj.nombre]) {
+                        detallePlacasPorModelo[productoObj.nombre] += placasPared;
+                    } else {
+                        detallePlacasPorModelo[productoObj.nombre] = placasPared;
+                    }
+                }
+            }
+
+            if (paredesCompletadas === 0) {
+                alert("Por favor, ingresá las medidas (Largo y Alto) de al menos una pared para cotizar.");
                 return;
             }
 
-            const areaTotal = perimetro * alto;
-            const placasNecesarias = Math.ceil(areaTotal / RENDIMIENTO_PLACA);
-            
-            const precioPorPlaca = catalogoPVC[0].precio; 
-            const costoMateriales = placasNecesarias * precioPorPlaca;
+            let costoInstalacion = (ambiente === 'bano' ? COSTO_INSTALACION_BANO : COSTO_INSTALACION_ESTANDAR) * totalPlacasGenerales;
+            let totalGeneral = totalMateriales + costoInstalacion;
 
-            let costoInstalacion = 0; 
-            if (ambiente === 'bano') {
-                costoInstalacion = placasNecesarias * COSTO_INSTALACION_BANO;
-            } else {
-                costoInstalacion = placasNecesarias * COSTO_INSTALACION_ESTANDAR;
+            // Armar lista visual de modelos
+            let htmlDesglose = "";
+            for (const [nombreModelo, cantPlacas] of Object.entries(detallePlacasPorModelo)) {
+                htmlDesglose += `<li><b>${cantPlacas}</b> placas modelo <i>${nombreModelo}</i></li>`;
             }
 
-            const total = costoMateriales + costoInstalacion;
-
+            // Guardar para Wsp
             cotizacionActual = {
                 area: areaTotal.toFixed(2),
-                placas: placasNecesarias,
+                placas: totalPlacasGenerales,
                 ambiente: ambiente === 'bano' ? "Baño" : "Estándar",
-                materiales: costoMateriales,
+                materiales: totalMateriales,
                 instalacion: costoInstalacion,
-                total: total
+                total: totalGeneral,
+                detalle: textoWspDetalle
             };
 
+            // Mostrar
             document.getElementById('res-area').innerText = cotizacionActual.area;
             document.getElementById('res-placas').innerText = cotizacionActual.placas;
-            document.getElementById('res-materiales').innerText = "$" + costoMateriales.toLocaleString('es-AR');
+            document.getElementById('res-desglose').innerHTML = htmlDesglose;
+            document.getElementById('res-materiales').innerText = "$" + totalMateriales.toLocaleString('es-AR');
             document.getElementById('res-instalacion').innerText = "$" + costoInstalacion.toLocaleString('es-AR');
-            document.getElementById('res-total').innerText = "$" + total.toLocaleString('es-AR');
+            document.getElementById('res-total').innerText = "$" + totalGeneral.toLocaleString('es-AR');
             
             document.getElementById('resultado-box').style.display = 'block';
         }
 
         function enviarWspCotizacion() {
             const texto = `¡Hola JF Reformas! Quisiera avanzar con una instalación de PVC. 
-Acabo de usar el cotizador de la web y mis datos son:
+Acabo de usar el cotizador web y este es mi detalle:
+
+*MEDIDAS POR PARED:*
+${cotizacionActual.detalle}
+*RESUMEN:*
 - Área total: ${cotizacionActual.area} m²
-- Placas necesarias: ${cotizacionActual.placas}
+- Total de Placas: ${cotizacionActual.placas} u.
 - Tipo de ambiente: ${cotizacionActual.ambiente}
 - Presupuesto Materiales: $${cotizacionActual.materiales.toLocaleString('es-AR')}
 - Presupuesto Instalación: $${cotizacionActual.instalacion.toLocaleString('es-AR')}
@@ -365,7 +472,7 @@ Acabo de usar el cotizador de la web y mis datos son:
             window.open(`https://wa.me/${NUMERO_WSP}?text=${encodeURIComponent(texto)}`, '_blank');
         }
 
-        // --- 6. LÓGICA THREE.JS (VISOR 3D MEJORADO) ---
+        // --- 6. LÓGICA THREE.JS ---
         let scene, camera, renderer, walls = [];
         const textureLoader = new THREE.TextureLoader();
 
@@ -373,7 +480,6 @@ Acabo de usar el cotizador de la web y mis datos son:
             const container = document.getElementById('canvas-container');
             
             scene = new THREE.Scene();
-            // Color de fondo fuera de la habitación (por si hay huecos)
             scene.background = new THREE.Color(0xdbe9f4); 
             
             camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -383,68 +489,58 @@ Acabo de usar el cotizador de la web y mis datos son:
             renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(renderer.domElement);
 
-            // Controles interactivos mejorados
             const controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true; 
             controls.dampingFactor = 0.05;
-            
-            // Habilitamos el Zoom con límites estrictos para no salir de las paredes
             controls.enableZoom = true; 
-            controls.minDistance = 0.3; // Lo más cerca de la pared
-            controls.maxDistance = 1.9; // Lo más lejos sin atravesar la pared opuesta
-            
-            // Limitamos el ángulo para que no miren por debajo del suelo
+            controls.minDistance = 0.3; 
+            controls.maxDistance = 1.9; 
             controls.maxPolarAngle = Math.PI / 2 - 0.05; 
-            
             controls.target.set(0, 1.5, -1); 
 
-            // Iluminación más amigable y cálida
-            scene.add(new THREE.AmbientLight(0xffffff, 0.6)); // Luz general suave
-            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6); // Luz natural (cielo/suelo)
+            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
             hemiLight.position.set(0, 4, 0);
             scene.add(hemiLight);
 
+            // Las paredes del visor 3D mantienen su proporción visual base para previsualizar texturas.
             const wallGeo = new THREE.PlaneGeometry(4, 3);
             
-            // Paredes (color base más suave)
-            const baseMat = new THREE.MeshLambertMaterial({ color: 0xf5f5f5 });
-
-            const paredFrente = new THREE.Mesh(wallGeo, baseMat);
+            // Índices sincronizados: 0=Frente, 1=Atrás, 2=Izq, 3=Der
+            const paredFrente = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }));
             paredFrente.position.set(0, 1.5, -2);
             scene.add(paredFrente);
-            walls.push(paredFrente);
+            walls[0] = paredFrente;
 
-            const paredAtras = new THREE.Mesh(wallGeo, baseMat);
+            const paredAtras = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }));
             paredAtras.position.set(0, 1.5, 2);
             paredAtras.rotation.y = Math.PI; 
             scene.add(paredAtras);
-            walls.push(paredAtras);
+            walls[1] = paredAtras;
 
-            const paredIzq = new THREE.Mesh(wallGeo, baseMat);
+            const paredIzq = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }));
             paredIzq.position.set(-2, 1.5, 0);
             paredIzq.rotation.y = Math.PI / 2;
             scene.add(paredIzq);
-            walls.push(paredIzq);
+            walls[2] = paredIzq;
 
-            const paredDer = new THREE.Mesh(wallGeo, baseMat);
+            const paredDer = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }));
             paredDer.position.set(2, 1.5, 0);
             paredDer.rotation.y = -Math.PI / 2;
             scene.add(paredDer);
-            walls.push(paredDer);
+            walls[3] = paredDer;
 
-            // Piso color madera/beige claro
             const floorGeo = new THREE.PlaneGeometry(4, 4);
             const floor = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xc2b2a1 }));
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
-            // Techo color blanco tiza
             const ceiling = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xfffaf0 }));
             ceiling.rotation.x = Math.PI / 2;
             ceiling.position.y = 3;
             scene.add(ceiling);
 
-            if(catalogoPVC.length > 0) cambiarTexturaPared(catalogoPVC[0].imagen);
+            if(catalogoPVC.length > 0) cambiarTexturaPared(catalogoPVC[0].id, true);
 
             function animate() {
                 requestAnimationFrame(animate);
@@ -454,16 +550,36 @@ Acabo de usar el cotizador de la web y mis datos son:
             animate();
         }
 
-        function cambiarTexturaPared(urlImagen) {
+        // Modificada para leer a qué pared aplicar y sincronizar con el formulario
+        function cambiarTexturaPared(idProducto, forzarTodas = false) {
+            const productoObj = catalogoPVC.find(p => p.id === idProducto);
+            const urlImagen = productoObj.imagen;
+            
+            // Leer qué radio button está seleccionado
+            let objetivo = document.querySelector('input[name="sel-pared"]:checked').value;
+            if (forzarTodas) objetivo = "todos";
+
             textureLoader.load(urlImagen, function(textura) {
                 textura.wrapS = THREE.RepeatWrapping;
                 textura.wrapT = THREE.RepeatWrapping;
                 textura.repeat.set(2, 1); 
                 
-                walls.forEach(wall => {
-                    wall.material.map = textura;
-                    wall.material.needsUpdate = true;
-                });
+                if (objetivo === "todos") {
+                    for (let i = 0; i < 4; i++) {
+                        walls[i].material.map = textura;
+                        walls[i].material.needsUpdate = true;
+                        // Sincronizar Formulario
+                        estadoParedes[i].modeloId = productoObj.id;
+                        document.getElementById(`lbl-mod-${i}`).innerText = productoObj.nombre;
+                    }
+                } else {
+                    let i = parseInt(objetivo);
+                    walls[i].material.map = textura;
+                    walls[i].material.needsUpdate = true;
+                    // Sincronizar Formulario
+                    estadoParedes[i].modeloId = productoObj.id;
+                    document.getElementById(`lbl-mod-${i}`).innerText = productoObj.nombre;
+                }
             });
         }
 
