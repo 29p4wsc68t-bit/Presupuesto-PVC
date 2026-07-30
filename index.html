@@ -93,7 +93,7 @@
         .btn-ver-mas { background: var(--bg-color); border: 1px solid #ddd; padding: 10px 20px; border-radius: 30px; color: var(--black); font-weight: bold; width: 100%; cursor: pointer; transition: var(--transition);}
         .producto-card:hover .btn-ver-mas { background: var(--black); color: var(--gold); border-color: var(--black); }
 
-        /* MODAL DE DETALLES DEL PRODUCTO (DISEÑO VERTICAL ROBUSTO) */
+        /* MODAL DE DETALLES DEL PRODUCTO */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 1001; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;}
         .modal-content { background: var(--white); width: 100%; max-width: 550px; max-height: 90vh; border-radius: var(--border-rad); overflow-y: auto; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
         .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: var(--black); background: var(--white); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; transition: var(--transition); z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.2);}
@@ -226,6 +226,10 @@
                     <p>Costo de Materiales: <b id="res-materiales">$0</b></p>
                     <p>Costo de Instalación: <b id="res-instalacion">$0</b></p>
                     <h3 class="total-destacado">Total Estimado: <b id="res-total">$0</b> ARS</h3>
+                    
+                    <!-- Botón para Generar PDF -->
+                    <button class="btn-primario" onclick="generarPDFPresupuesto()" style="background: var(--gold); color: var(--black); margin-top: 15px;">📄 Descargar Presupuesto en PDF</button>
+                    
                     <button class="btn-wsp" onclick="enviarWspCotizacion()">Coordinar por WhatsApp</button>
                 </div>
             </div>
@@ -259,7 +263,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE PRODUCTO (DISEÑO VERTICAL FIJO) -->
+    <!-- MODAL DE PRODUCTO -->
     <div id="modal-producto" class="modal-overlay" onclick="cerrarModalFuera(event)">
         <div class="modal-content">
             <div class="modal-close" onclick="cerrarModal()">×</div>
@@ -405,6 +409,7 @@
             let areaTotal = 0, totalPlacasGenerales = 0, totalMateriales = 0, paredesCompletadas = 0;
             let detallePlacasPorModelo = {};
             let textoWspDetalle = "";
+            let detalleHtmlTabla = "";
 
             for (let i = 0; i < 4; i++) {
                 let largo = parseFloat(document.getElementById(estadoParedes[i].largoId).value) || 0;
@@ -421,6 +426,14 @@
                     totalMateriales += placasPared * productoObj.precio;
                     
                     textoWspDetalle += `- ${estadoParedes[i].nombre}: ${largo}x${alto}m (${placasPared} placas modelo ${productoObj.nombre})\n`;
+
+                    detalleHtmlTabla += `
+                        <tr>
+                            <td><b>${estadoParedes[i].nombre}</b></td>
+                            <td>${largo} m x ${alto} m (${areaPared.toFixed(2)} m²)</td>
+                            <td>${placasPared} u. - ${productoObj.nombre}</td>
+                        </tr>
+                    `;
 
                     if (detallePlacasPorModelo[productoObj.nombre]) detallePlacasPorModelo[productoObj.nombre] += placasPared;
                     else detallePlacasPorModelo[productoObj.nombre] = placasPared;
@@ -440,7 +453,16 @@
                 htmlDesglose += `<li style="margin-bottom: 4px;"><b style="color:var(--gold);">${cantPlacas}</b> placas modelo <i>${nombreModelo}</i></li>`;
             }
 
-            cotizacionActual = { area: areaTotal.toFixed(2), placas: totalPlacasGenerales, ambiente: ambiente === 'bano' ? "Baño" : "Estándar", materiales: totalMateriales, instalacion: costoInstalacion, total: totalGeneral, detalle: textoWspDetalle };
+            cotizacionActual = { 
+                area: areaTotal.toFixed(2), 
+                placas: totalPlacasGenerales, 
+                ambiente: ambiente === 'bano' ? "Baño / Ambiente Húmedo" : "Estándar", 
+                materiales: totalMateriales, 
+                instalacion: costoInstalacion, 
+                total: totalGeneral, 
+                detalle: textoWspDetalle,
+                detalleHtmlParaPdf: detalleHtmlTabla
+            };
 
             document.getElementById('res-area').innerText = cotizacionActual.area;
             document.getElementById('res-placas').innerText = cotizacionActual.placas;
@@ -453,6 +475,88 @@
             if(window.innerWidth <= 768) {
                 document.getElementById('resultado-box').scrollIntoView({ behavior: 'smooth' });
             }
+        }
+
+        // --- GENERADOR DE PDF ---
+        function generarPDFPresupuesto() {
+            if (!cotizacionActual.area || cotizacionActual.area == 0) {
+                alert("Primero debés calcular un presupuesto.");
+                return;
+            }
+
+            const ventanaPrint = window.open('', '_blank');
+            const fechaActual = new Date().toLocaleDateString('es-AR');
+
+            const htmlContenido = `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Presupuesto - JF Reformas</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #111; padding: 30px; max-width: 800px; margin: auto; }
+                        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #D4AF37; padding-bottom: 20px; margin-bottom: 25px; }
+                        .logo { max-height: 70px; }
+                        .empresa-info { text-align: right; font-size: 14px; color: #555; }
+                        h1 { color: #111; font-size: 22px; margin: 0 0 5px 0; }
+                        .info-grid { display: flex; justify-content: space-between; margin-bottom: 25px; background: #f9f9f9; padding: 15px; border-radius: 8px; font-size: 14px; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+                        th, td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; font-size: 14px; }
+                        th { background-color: #111; color: #D4AF37; }
+                        .totales-box { width: 320px; margin-left: auto; background: #111; color: #fff; padding: 15px; border-radius: 8px; border: 2px solid #D4AF37; }
+                        .totales-box p { display: flex; justify-content: space-between; margin: 8px 0; font-size: 14px; }
+                        .totales-box .total-final { font-size: 18px; font-weight: bold; color: #D4AF37; border-top: 1px solid #444; padding-top: 8px; margin-top: 8px; }
+                        .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 15px; }
+                    </style>
+                </head>
+                <body onload="window.print(); window.close();">
+                    <div class="header">
+                        <div>
+                            <img src="image3.jpg" class="logo" alt="JF Reformas" onerror="this.style.display='none'">
+                            <h1>Presupuesto de Revestimiento PVC</h1>
+                        </div>
+                        <div class="empresa-info">
+                            <strong>JF Reformas</strong><br>
+                            Tel: 11-3189-5060<br>
+                            Fecha: ${fechaActual}
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div><strong>Tipo de Ambiente:</strong> ${cotizacionActual.ambiente}</div>
+                        <div><strong>Área Total:</strong> ${cotizacionActual.area} m²</div>
+                        <div><strong>Placas Necesarias:</strong> ${cotizacionActual.placas} u. (Rinde 2.93m²)</div>
+                    </div>
+
+                    <h3>Desglose del Proyecto por Pared:</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ubicación</th>
+                                <th>Medidas (Largo x Alto)</th>
+                                <th>Material / Placas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${cotizacionActual.detalleHtmlParaPdf}
+                        </tbody>
+                    </table>
+
+                    <div class="totales-box">
+                        <p><span>Costo Materiales:</span> <span>$${cotizacionActual.materiales.toLocaleString('es-AR')}</span></p>
+                        <p><span>Costo Instalación:</span> <span>$${cotizacionActual.instalacion.toLocaleString('es-AR')}</span></p>
+                        <div class="total-final"><span>Total Estimado:</span> <span>$${cotizacionActual.total.toLocaleString('es-AR')}</span></div>
+                    </div>
+
+                    <div class="footer">
+                        Presupuesto válido por 15 días. Las medidas finales quedan sujetas a verificación en obra. ¡Gracias por confiar en JF Reformas!
+                    </div>
+                </body>
+                </html>
+            `;
+
+            ventanaPrint.document.write(htmlContenido);
+            ventanaPrint.document.close();
         }
 
         function enviarWspCotizacion() {
