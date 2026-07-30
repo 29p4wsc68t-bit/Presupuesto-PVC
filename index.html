@@ -54,7 +54,6 @@
         #canvas-container { width: 100%; height: 400px; background: #c2c9d1; border-radius: 5px; overflow: hidden; margin-bottom: 15px; cursor: grab; }
         #canvas-container:active { cursor: grabbing; }
         
-        /* Controles de asignación de textura */
         .selector-paredes { display: flex; gap: 5px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;}
         .radio-pared { display: none; }
         .label-pared { padding: 6px 12px; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; font-size: 13px; background: #fff; font-weight: bold;}
@@ -64,26 +63,55 @@
         .textura-btn { min-width: 90px; padding: 8px; cursor: pointer; border: 1px solid #aaa; border-radius: 4px; background: #f9f9f9; text-align: center; font-size: 12px; font-weight: bold; }
         .textura-btn:hover { background: #eee; border-color: #0056b3; }
 
-        /* CARRITO DE COMPRAS Y CATÁLOGO */
-        .carrito-panel { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 2px solid #0056b3; }
-        .carrito-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; }
-        .carrito-vacio { color: #777; font-style: italic; }
+        /* CATÁLOGO LIMPIO */
+        .catalogo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-bottom: 80px; }
+        .producto-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; border: 1px solid #eee; }
+        .producto-card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); border-color: #0056b3; }
+        .producto-card img { width: 100%; height: 180px; object-fit: cover; }
+        .producto-info { padding: 15px; text-align: center; }
+        .producto-info h3 { margin: 0 0 10px 0; color: #333; }
+        .btn-ver-mas { background: #f0f0f0; border: 1px solid #ccc; padding: 8px 15px; border-radius: 4px; color: #333; font-weight: bold; width: 100%; cursor: pointer; }
+        .producto-card:hover .btn-ver-mas { background: #0056b3; color: white; border-color: #0056b3; }
 
-        .catalogo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-        .flip-card { background-color: transparent; width: 100%; height: 340px; perspective: 1000px; }
-        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
-        .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
-        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
-        .flip-card-front { background-color: #fff; }
-        .flip-card-front img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 10px; }
-        .flip-card-back { background-color: #343a40; color: white; transform: rotateY(180deg); }
-        .flip-card-back h3 { margin-top: 0; }
-        .precio-badge { background: #ffc107; color: #000; padding: 5px 10px; border-radius: 15px; font-weight: bold; margin: 10px 0; }
+        /* MODAL DE DETALLES DEL PRODUCTO */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1001; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 700px; border-radius: 8px; overflow: hidden; display: flex; flex-wrap: wrap; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-close { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #555; background: #eee; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+        .modal-close:hover { background: #ff4444; color: white; }
+        .modal-img { flex: 1; min-width: 250px; background: #eee; }
+        .modal-img img { width: 100%; height: 100%; object-fit: cover; min-height: 250px; }
+        .modal-body { flex: 1.5; padding: 25px; min-width: 300px; }
+        .modal-body h2 { margin-top: 0; color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .badge-precio { display: inline-block; background: #ffc107; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 18px; margin-bottom: 15px; }
+        .modal-desc { margin-bottom: 15px; font-size: 15px; line-height: 1.5; color: #444; }
+        .modal-rec { background: #f8f9fa; padding: 10px; border-left: 4px solid #17a2b8; font-size: 14px; margin-bottom: 20px; border-radius: 0 4px 4px 0; }
         
-        .add-cart-controls { display: flex; gap: 10px; margin-top: 15px; }
-        .add-cart-controls input { width: 50px; text-align: center; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; }
-        .btn-add { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .add-cart-controls { display: flex; gap: 10px; margin-top: 15px; align-items: center; }
+        .add-cart-controls input { width: 60px; text-align: center; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; padding: 10px; font-size: 16px;}
+        .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; flex-grow: 1; }
         .btn-add:hover { background: #218838; }
+
+        /* CARRITO LATERAL (OFF-CANVAS) */
+        .carrito-lateral { position: fixed; top: 0; right: -400px; width: 100%; max-width: 380px; height: 100vh; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: right 0.3s ease; z-index: 1000; display: flex; flex-direction: column; }
+        .carrito-lateral.abierto { right: 0; }
+        .carrito-header { padding: 20px; background: #0056b3; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .carrito-header h2 { margin: 0; font-size: 20px; }
+        .cerrar-carrito { cursor: pointer; font-size: 24px; font-weight: bold; }
+        .carrito-body { padding: 20px; flex-grow: 1; overflow-y: auto; }
+        .carrito-footer { padding: 20px; border-top: 1px solid #eee; background: #f9f9f9; }
+        
+        .carrito-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 12px 0; }
+        .carrito-item-info { display: flex; flex-direction: column; }
+        .carrito-item-nombre { font-weight: bold; color: #333; }
+        .carrito-item-subtotal { color: #666; font-size: 14px; }
+        .btn-eliminar { background: #dc3545; color: white; border: none; border-radius: 4px; width: 30px; height: 30px; cursor: pointer; font-weight: bold; }
+        
+        .carrito-vacio { color: #777; font-style: italic; text-align: center; margin-top: 50px; }
+        
+        /* BOTÓN FLOTANTE CARRITO */
+        .btn-flotante { position: fixed; bottom: 20px; right: 20px; background: #0056b3; color: white; border: none; border-radius: 50%; width: 65px; height: 65px; font-size: 24px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 999; display: flex; justify-content: center; align-items: center; transition: transform 0.2s; }
+        .btn-flotante:hover { transform: scale(1.05); }
+        .badge-flotante { position: absolute; top: 0; right: 0; background: #dc3545; color: white; font-size: 12px; font-weight: bold; border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; border: 2px solid white; }
     </style>
 </head>
 <body>
@@ -92,20 +120,18 @@
 
     <div class="tabs">
         <button class="tab-btn active" onclick="cambiarTab('cotizador')">Cotizador y 3D</button>
-        <button class="tab-btn" onclick="cambiarTab('catalogo')">Catálogo y Compras</button>
+        <button class="tab-btn" onclick="cambiarTab('catalogo')">Catálogo de Placas</button>
     </div>
 
-    <!-- TAB 1: COTIZADOR Y 3D -->
+    <!-- TAB 1: COTIZADOR Y 3D (Igual que antes) -->
     <div id="cotizador" class="tab-content active">
         <div class="cotizador-layout">
-            
             <!-- Formulario de Cálculo -->
             <div class="formulario">
                 <h2>Cotizá tu instalación</h2>
-                <p style="font-size: 14px; color: #666; margin-top: -10px;">Ingresá las medidas solo de las paredes que vas a revestir. Podés asignar diseños distintos en el visor 3D.</p>
+                <p style="font-size: 14px; color: #666; margin-top: -10px;">Ingresá las medidas de las paredes. Asigná diseños distintos en el visor 3D.</p>
                 
                 <div class="grid-paredes-avanzado">
-                    <!-- Pared 1 -->
                     <div class="pared-box">
                         <h4>Pared 1 (Frente)</h4>
                         <div class="inputs-medidas">
@@ -114,7 +140,6 @@
                         </div>
                         <p class="diseño-label">Diseño: <b id="lbl-mod-0">Serena</b></p>
                     </div>
-                    <!-- Pared 2 -->
                     <div class="pared-box">
                         <h4>Pared 2 (Atrás)</h4>
                         <div class="inputs-medidas">
@@ -123,7 +148,6 @@
                         </div>
                         <p class="diseño-label">Diseño: <b id="lbl-mod-1">Serena</b></p>
                     </div>
-                    <!-- Pared 3 -->
                     <div class="pared-box">
                         <h4>Pared 3 (Izquierda)</h4>
                         <div class="inputs-medidas">
@@ -132,7 +156,6 @@
                         </div>
                         <p class="diseño-label">Diseño: <b id="lbl-mod-2">Serena</b></p>
                     </div>
-                    <!-- Pared 4 -->
                     <div class="pared-box">
                         <h4>Pared 4 (Derecha)</h4>
                         <div class="inputs-medidas">
@@ -155,14 +178,11 @@
                     <h3>Resumen:</h3>
                     <p>Área total a cubrir: <b id="res-area">0</b> m²</p>
                     <p>Total de Placas necesarias: <b id="res-placas">0</b> u.</p>
-                    <ul id="res-desglose" class="resumen-desglose">
-                        <!-- Desglose de modelos se inyecta por JS -->
-                    </ul>
+                    <ul id="res-desglose" class="resumen-desglose"></ul>
                     <hr>
                     <p>Costo de Materiales: <b id="res-materiales">$0</b></p>
                     <p>Costo de Instalación: <b id="res-instalacion">$0</b></p>
                     <h3 style="color: #0056b3;">Total Estimado: <b id="res-total">$0</b></h3>
-                    
                     <button class="btn-wsp" onclick="enviarWspCotizacion()">Enviar Consulta por WhatsApp</button>
                 </div>
             </div>
@@ -170,72 +190,101 @@
             <!-- Visor 3D -->
             <div class="visor-3d">
                 <h2>Habitación 3D (Deslizá y hacé zoom)</h2>
-                
-                <!-- Selector de Pared a pintar -->
                 <div class="selector-paredes">
                     <span style="font-size:14px; margin-right:5px;">Pintar:</span>
-                    
                     <input type="radio" name="sel-pared" id="sel-todas" value="todos" class="radio-pared" checked>
                     <label for="sel-todas" class="label-pared">Todas</label>
-                    
                     <input type="radio" name="sel-pared" id="sel-p0" value="0" class="radio-pared">
                     <label for="sel-p0" class="label-pared">P1 (Frente)</label>
-                    
                     <input type="radio" name="sel-pared" id="sel-p1" value="1" class="radio-pared">
                     <label for="sel-p1" class="label-pared">P2 (Atrás)</label>
-                    
                     <input type="radio" name="sel-pared" id="sel-p2" value="2" class="radio-pared">
                     <label for="sel-p2" class="label-pared">P3 (Izq)</label>
-                    
                     <input type="radio" name="sel-pared" id="sel-p3" value="3" class="radio-pared">
                     <label for="sel-p3" class="label-pared">P4 (Der)</label>
                 </div>
-
                 <div id="texturas-botones" class="texturas-btn-container"></div>
                 <div id="canvas-container"></div>
             </div>
         </div>
     </div>
 
-    <!-- TAB 2: CATÁLOGO DE PRODUCTOS Y CARRITO -->
+    <!-- TAB 2: CATÁLOGO DE PRODUCTOS -->
     <div id="catalogo" class="tab-content">
-        <div class="carrito-panel">
-            <h2>🛒 Tu Pedido</h2>
-            <div id="lista-carrito">
-                <p class="carrito-vacio">Aún no agregaste placas a tu pedido.</p>
-            </div>
-            <hr>
-            <h3>Total a Pagar: $<span id="total-carrito">0</span></h3>
-            
-            <label>Tus Datos para el pedido:</label>
-            <input type="text" id="nombre-cliente" placeholder="Nombre y Apellido" style="width:100%; padding:8px; margin-top:5px; margin-bottom:10px;">
-            <button class="btn-wsp" onclick="enviarWspCompra()">Finalizar Compra por WhatsApp</button>
-        </div>
-
-        <h2>Catálogo de Diseños</h2>
+        <h2>Catálogo de Diseños Exclusivos</h2>
         <div id="catalogo-grid" class="catalogo-grid">
             <!-- Tarjetas se generan por JS -->
         </div>
     </div>
 
+    <!-- MODAL DE PRODUCTO -->
+    <div id="modal-producto" class="modal-overlay" onclick="cerrarModalFuera(event)">
+        <div class="modal-content">
+            <div class="modal-close" onclick="cerrarModal()">×</div>
+            <div class="modal-img">
+                <img id="modal-img-src" src="" alt="">
+            </div>
+            <div class="modal-body">
+                <h2 id="modal-nombre">Nombre Producto</h2>
+                <div class="badge-precio">$<span id="modal-precio">0</span> ARS</div>
+                <p style="margin-top: 0; font-size: 14px; color: #777;">Rendimiento: <b>2.93 m²</b> por placa.</p>
+                
+                <p id="modal-desc" class="modal-desc">Descripción del producto.</p>
+                <div class="modal-rec">
+                    <strong>💡 Sugerencia:</strong> <span id="modal-rec">Recomendación de uso.</span>
+                </div>
+                
+                <hr>
+                <p style="margin-bottom: 5px; font-weight: bold;">¿Cuántas placas vas a llevar?</p>
+                <div class="add-cart-controls">
+                    <input type="number" id="modal-cantidad" min="1" value="1">
+                    <button class="btn-add" id="btn-modal-add" onclick="">Agregar al Carrito</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARRITO LATERAL OFF-CANVAS -->
+    <div id="carrito-lateral" class="carrito-lateral">
+        <div class="carrito-header">
+            <h2>🛒 Tu Pedido</h2>
+            <div class="cerrar-carrito" onclick="toggleCarrito()">×</div>
+        </div>
+        <div class="carrito-body" id="lista-carrito">
+            <p class="carrito-vacio">El carrito está vacío.</p>
+        </div>
+        <div class="carrito-footer">
+            <h3 style="margin-top: 0;">Total: $<span id="total-carrito">0</span></h3>
+            <label style="font-size: 14px; font-weight: bold;">Tus Datos para el pedido:</label>
+            <input type="text" id="nombre-cliente" placeholder="Nombre y Apellido" style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
+            <button class="btn-wsp" onclick="enviarWspCompra()">Finalizar Compra por Wsp</button>
+        </div>
+    </div>
+
+    <!-- BOTÓN FLOTANTE CARRITO -->
+    <button class="btn-flotante" onclick="toggleCarrito()">
+        🛒
+        <div class="badge-flotante" id="badge-carrito" style="display: none;">0</div>
+    </button>
+
     <script>
-        // --- 1. BASE DE DATOS Y VARIABLES ---
+        // --- 1. BASE DE DATOS Y VARIABLES (Con descripciones agregadas) ---
         const catalogoPVC = [
-            { id: 'serena', nombre: 'Serena', imagen: 'serena.jpg', precio: 30000 },
-            { id: 'trentino', nombre: 'Trentino', imagen: 'trentino.jpg', precio: 30000 },
-            { id: 'calacatta', nombre: 'Calacatta', imagen: 'calacatta.jpg', precio: 30000 },
-            { id: 'crema', nombre: 'Crema Marfil', imagen: 'crema.jpg', precio: 30000 },
-            { id: 'onix', nombre: 'Onix Gold', imagen: 'onix.jpg', precio: 30000 },
-            { id: 'milano', nombre: 'Milano', imagen: 'milano.jpg', precio: 30000 },
-            { id: 'noir', nombre: 'Noir', imagen: 'noir.jpg', precio: 30000 },
-            { id: 'livorno', nombre: 'Livorno', imagen: 'livorno.jpg', precio: 30000 },
-            { id: 'basalto', nombre: 'Basalto', imagen: 'basalto.jpg', precio: 30000 },
-            { id: 'statuario', nombre: 'Statuario', imagen: 'statuario.jpg', precio: 30000 },
-            { id: 'veneto', nombre: 'Veneto', imagen: 'veneto.jpg', precio: 30000 },
-            { id: 'carrara', nombre: 'Carrara', imagen: 'carrara.jpg', precio: 30000 },
-            { id: 'trentinogold', nombre: 'Trentino Gold', imagen: 'trentinogold.jpg', precio: 30000 },
-            { id: 'sahara', nombre: 'Sahara Noir', imagen: 'sahara.jpg', precio: 30000 },
-            { id: 'arabescato', nombre: 'Arabescato', imagen: 'arabescato.jpg', precio: 30000 }
+            { id: 'serena', nombre: 'Serena', imagen: 'serena.jpg', precio: 30000, desc: 'Un diseño sutil y luminoso que aporta claridad y amplitud a cualquier espacio.', rec: 'Ideal para pasillos oscuros, livings pequeños y baños modernos.' },
+            { id: 'trentino', nombre: 'Trentino', imagen: 'trentino.jpg', precio: 30000, desc: 'Textura símil piedra natural en tonos neutros. Elegancia garantizada.', rec: 'Excelente para paredes principales de sala de estar o recibidores.' },
+            { id: 'calacatta', nombre: 'Calacatta', imagen: 'calacatta.jpg', precio: 30000, desc: 'Clásico mármol blanco con vetas grises marcadas. Un acabado premium inconfundible.', rec: 'Perfecto para baños de lujo, cocinas o para revestir islas.' },
+            { id: 'crema', nombre: 'Crema Marfil', imagen: 'crema.jpg', precio: 30000, desc: 'Tono cálido y suave que invita a la relajación. Muy combinable.', rec: 'Dormitorios y espacios de descanso. Combina perfecto con madera.' },
+            { id: 'onix', nombre: 'Onix Gold', imagen: 'onix.jpg', precio: 30000, desc: 'Diseño exótico con destellos dorados. Aporta un toque de exclusividad.', rec: 'Paredes destacadas en livings, locales comerciales o barras.' },
+            { id: 'milano', nombre: 'Milano', imagen: 'milano.jpg', precio: 30000, desc: 'Estilo contemporáneo urbano, simulando acabados limpios y modernos.', rec: 'Oficinas, estudios o habitaciones con decoración minimalista.' },
+            { id: 'noir', nombre: 'Noir', imagen: 'noir.jpg', precio: 30000, desc: 'Mármol negro profundo con vetas claras. Dramático y súper sofisticado.', rec: 'Ideal para contrastar. Paredes detrás de la TV o baños con estilo industrial.' },
+            { id: 'livorno', nombre: 'Livorno', imagen: 'livorno.jpg', precio: 30000, desc: 'Gris texturizado de aspecto industrial pero acabado liso y fácil de limpiar.', rec: 'Quinchos, garajes convertidos o lofts modernos.' },
+            { id: 'basalto', nombre: 'Basalto', imagen: 'basalto.jpg', precio: 30000, desc: 'Tono piedra oscura, sobrio y muy resistente visualmente a la suciedad.', rec: 'Zonas de alto tránsito o paredes exteriores techadas.' },
+            { id: 'statuario', nombre: 'Statuario', imagen: 'statuario.jpg', precio: 30000, desc: 'Similar al Calacatta pero con vetas más espaciadas y dramáticas.', rec: 'Ideal para paredes de gran tamaño donde se aprecie el dibujo.' },
+            { id: 'veneto', nombre: 'Veneto', imagen: 'veneto.jpg', precio: 30000, desc: 'Estilo rústico suavizado, aportando textura visual sin perder la elegancia.', rec: 'Salas de estar cálidas, casas de fin de semana o estilo campo.' },
+            { id: 'carrara', nombre: 'Carrara', imagen: 'carrara.jpg', precio: 30000, desc: 'El rey de los mármoles. Blanco grisáceo con veta fina y continua.', rec: 'Baños clásicos, cocinas luminosas y frentes de locales.' },
+            { id: 'trentinogold', nombre: 'Trentino Gold', imagen: 'trentinogold.jpg', precio: 30000, desc: 'La base pétrea del Trentino con ligeras y elegantes vetas doradas.', rec: 'Espacios que buscan un toque de lujo sutil sin ser recargados.' },
+            { id: 'sahara', nombre: 'Sahara Noir', imagen: 'sahara.jpg', precio: 30000, desc: 'Fondo negro absoluto con líneas rectas y definidas en blanco y dorado.', rec: 'Revestimiento de lujo para oficinas, lobbies o baños principales.' },
+            { id: 'arabescato', nombre: 'Arabescato', imagen: 'arabescato.jpg', precio: 30000, desc: 'Mármol blanco con vetas ovilladas grises muy características del diseño italiano.', rec: 'Interiores clásicos y elegantes, chimeneas falsas o recibidores.' }
         ];
 
         const RENDIMIENTO_PLACA = 2.93; 
@@ -243,7 +292,6 @@
         const COSTO_INSTALACION_ESTANDAR = 55000; 
         const COSTO_INSTALACION_BANO = 65000;     
 
-        // Array para trackear qué modelo tiene cada pared asignada.
         let estadoParedes = [
             { largoId: 'p0-largo', altoId: 'p0-alto', modeloId: 'serena', nombre: "Pared 1 (Frente)" },
             { largoId: 'p1-largo', altoId: 'p1-alto', modeloId: 'serena', nombre: "Pared 2 (Atrás)" },
@@ -262,40 +310,29 @@
             event.currentTarget.classList.add('active');
         }
 
-        // --- 3. GENERAR INTERFAZ ---
+        // --- 3. GENERAR INTERFAZ Y MODAL ---
         function inicializarUI() {
             const catalogoContainer = document.getElementById('catalogo-grid');
             const botonesContainer = document.getElementById('texturas-botones');
 
             catalogoPVC.forEach(producto => {
+                // Tarjeta limpia
                 const cardHtml = `
-                    <div class="flip-card">
-                        <div class="flip-card-inner">
-                            <div class="flip-card-front">
-                                <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.src='https://via.placeholder.com/200?text=Sin+Imagen'">
-                                <strong>${producto.nombre}</strong>
-                            </div>
-                            <div class="flip-card-back">
-                                <h3>${producto.nombre}</h3>
-                                <div class="precio-badge">$${producto.precio.toLocaleString('es-AR')} ARS</div>
-                                <p>Rinde: 2.93 m² por placa</p>
-                                <hr style="width: 80%; border-color:#555;">
-                                <p style="margin-bottom: 5px; font-size:14px;">¿Cuántas placas querés?</p>
-                                <div class="add-cart-controls">
-                                    <input type="number" id="cant-${producto.id}" min="1" value="1">
-                                    <button class="btn-add" onclick="agregarAlCarrito('${producto.id}')">Agregar</button>
-                                </div>
-                            </div>
+                    <div class="producto-card" onclick="abrirModal('${producto.id}')">
+                        <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.src='https://via.placeholder.com/250?text=Sin+Imagen'">
+                        <div class="producto-info">
+                            <h3>${producto.nombre}</h3>
+                            <button class="btn-ver-mas">Ver Detalles</button>
                         </div>
                     </div>
                 `;
                 catalogoContainer.innerHTML += cardHtml;
 
+                // Botones del Visor 3D
                 const btnHtml = `<button class="textura-btn" onclick="cambiarTexturaPared('${producto.id}')">${producto.nombre}</button>`;
                 botonesContainer.innerHTML += btnHtml;
             });
 
-            // Inicializar las etiquetas del formulario con el primer producto
             if(catalogoPVC.length > 0){
                 estadoParedes.forEach(p => p.modeloId = catalogoPVC[0].id);
                 for(let i=0; i<4; i++) {
@@ -304,105 +341,101 @@
             }
         }
 
+        // Funciones del Modal
+        function abrirModal(idProducto) {
+            const prod = catalogoPVC.find(p => p.id === idProducto);
+            
+            document.getElementById('modal-img-src').src = prod.imagen;
+            document.getElementById('modal-nombre').innerText = prod.nombre;
+            document.getElementById('modal-precio').innerText = prod.precio.toLocaleString('es-AR');
+            document.getElementById('modal-desc').innerText = prod.desc;
+            document.getElementById('modal-rec').innerText = prod.rec;
+            document.getElementById('modal-cantidad').value = 1;
+            
+            // Asignar el ID al botón de agregar
+            const btnAdd = document.getElementById('btn-modal-add');
+            btnAdd.onclick = function() { agregarAlCarrito(prod.id); };
+
+            document.getElementById('modal-producto').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-producto').style.display = 'none';
+        }
+
+        function cerrarModalFuera(event) {
+            if (event.target === document.getElementById('modal-producto')) {
+                cerrarModal();
+            }
+        }
+
+        // Funciones del Menú Lateral (Carrito)
+        function toggleCarrito() {
+            const panel = document.getElementById('carrito-lateral');
+            panel.classList.toggle('abierto');
+        }
+
         // --- 4. LÓGICA DEL COTIZADOR ---
+        // (La lógica del cotizador se mantiene exactamente igual que en la versión anterior)
         function calcularPresupuesto() {
             const ambiente = document.getElementById('ambiente').value;
-            
-            let areaTotal = 0;
-            let totalPlacasGenerales = 0;
-            let totalMateriales = 0;
-            let paredesCompletadas = 0;
-            
+            let areaTotal = 0, totalPlacasGenerales = 0, totalMateriales = 0, paredesCompletadas = 0;
             let detallePlacasPorModelo = {};
             let textoWspDetalle = "";
 
-            // Recorremos las 4 paredes
             for (let i = 0; i < 4; i++) {
                 let largo = parseFloat(document.getElementById(estadoParedes[i].largoId).value) || 0;
                 let alto = parseFloat(document.getElementById(estadoParedes[i].altoId).value) || 0;
 
                 if (largo > 0 && alto > 0) {
                     paredesCompletadas++;
-                    
                     let areaPared = largo * alto;
                     areaTotal += areaPared;
-                    
                     let placasPared = Math.ceil(areaPared / RENDIMIENTO_PLACA);
                     totalPlacasGenerales += placasPared;
                     
                     let productoObj = catalogoPVC.find(p => p.id === estadoParedes[i].modeloId);
                     totalMateriales += placasPared * productoObj.precio;
                     
-                    // Texto para WhatsApp
                     textoWspDetalle += `- ${estadoParedes[i].nombre}: ${largo}x${alto}m (${placasPared} placas modelo ${productoObj.nombre})\n`;
 
-                    // Sumatoria para el resumen en pantalla
-                    if (detallePlacasPorModelo[productoObj.nombre]) {
-                        detallePlacasPorModelo[productoObj.nombre] += placasPared;
-                    } else {
-                        detallePlacasPorModelo[productoObj.nombre] = placasPared;
-                    }
+                    if (detallePlacasPorModelo[productoObj.nombre]) detallePlacasPorModelo[productoObj.nombre] += placasPared;
+                    else detallePlacasPorModelo[productoObj.nombre] = placasPared;
                 }
             }
 
             if (paredesCompletadas === 0) {
-                alert("Por favor, ingresá las medidas (Largo y Alto) de al menos una pared para cotizar.");
+                alert("Por favor, ingresá las medidas de al menos una pared.");
                 return;
             }
 
             let costoInstalacion = (ambiente === 'bano' ? COSTO_INSTALACION_BANO : COSTO_INSTALACION_ESTANDAR) * totalPlacasGenerales;
             let totalGeneral = totalMateriales + costoInstalacion;
 
-            // Armar lista visual de modelos
             let htmlDesglose = "";
             for (const [nombreModelo, cantPlacas] of Object.entries(detallePlacasPorModelo)) {
                 htmlDesglose += `<li><b>${cantPlacas}</b> placas modelo <i>${nombreModelo}</i></li>`;
             }
 
-            // Guardar para Wsp
-            cotizacionActual = {
-                area: areaTotal.toFixed(2),
-                placas: totalPlacasGenerales,
-                ambiente: ambiente === 'bano' ? "Baño" : "Estándar",
-                materiales: totalMateriales,
-                instalacion: costoInstalacion,
-                total: totalGeneral,
-                detalle: textoWspDetalle
-            };
+            cotizacionActual = { area: areaTotal.toFixed(2), placas: totalPlacasGenerales, ambiente: ambiente === 'bano' ? "Baño" : "Estándar", materiales: totalMateriales, instalacion: costoInstalacion, total: totalGeneral, detalle: textoWspDetalle };
 
-            // Mostrar
             document.getElementById('res-area').innerText = cotizacionActual.area;
             document.getElementById('res-placas').innerText = cotizacionActual.placas;
             document.getElementById('res-desglose').innerHTML = htmlDesglose;
             document.getElementById('res-materiales').innerText = "$" + totalMateriales.toLocaleString('es-AR');
             document.getElementById('res-instalacion').innerText = "$" + costoInstalacion.toLocaleString('es-AR');
             document.getElementById('res-total').innerText = "$" + totalGeneral.toLocaleString('es-AR');
-            
             document.getElementById('resultado-box').style.display = 'block';
         }
 
         function enviarWspCotizacion() {
-            const texto = `¡Hola JF Reformas! Quisiera avanzar con una instalación de PVC. 
-Acabo de usar el cotizador web y este es mi detalle:
-
-*MEDIDAS POR PARED:*
-${cotizacionActual.detalle}
-*RESUMEN:*
-- Área total: ${cotizacionActual.area} m²
-- Total de Placas: ${cotizacionActual.placas} u.
-- Tipo de ambiente: ${cotizacionActual.ambiente}
-- Presupuesto Materiales: $${cotizacionActual.materiales.toLocaleString('es-AR')}
-- Presupuesto Instalación: $${cotizacionActual.instalacion.toLocaleString('es-AR')}
-*TOTAL ESTIMADO: $${cotizacionActual.total.toLocaleString('es-AR')}*
-
-¿Podemos coordinar?`;
-            
+            const texto = `¡Hola JF Reformas! Quisiera avanzar con una instalación de PVC. \n*MEDIDAS POR PARED:*\n${cotizacionActual.detalle}*RESUMEN:*\n- Área total: ${cotizacionActual.area} m²\n- Total de Placas: ${cotizacionActual.placas} u.\n- Tipo de ambiente: ${cotizacionActual.ambiente}\n- Presupuesto Materiales: $${cotizacionActual.materiales.toLocaleString('es-AR')}\n- Presupuesto Instalación: $${cotizacionActual.instalacion.toLocaleString('es-AR')}\n*TOTAL ESTIMADO: $${cotizacionActual.total.toLocaleString('es-AR')}*\n\n¿Podemos coordinar?`;
             window.open(`https://wa.me/${NUMERO_WSP}?text=${encodeURIComponent(texto)}`, '_blank');
         }
 
         // --- 5. LÓGICA DEL CARRITO ---
         function agregarAlCarrito(idProducto) {
-            const cantidad = parseInt(document.getElementById(`cant-${idProducto}`).value);
+            const cantidad = parseInt(document.getElementById('modal-cantidad').value);
             const producto = catalogoPVC.find(p => p.id === idProducto);
             
             const itemExistente = carrito.find(item => item.id === idProducto);
@@ -413,7 +446,13 @@ ${cotizacionActual.detalle}
             }
             
             actualizarCarritoUI();
-            alert(`${cantidad} placa/s de ${producto.nombre} agregadas al pedido.`);
+            cerrarModal(); 
+            
+            // Abrimos el panel lateral automáticamente para mostrar el éxito
+            const panel = document.getElementById('carrito-lateral');
+            if(!panel.classList.contains('abierto')) {
+                toggleCarrito();
+            }
         }
 
         function eliminarDelCarrito(idProducto) {
@@ -424,28 +463,40 @@ ${cotizacionActual.detalle}
         function actualizarCarritoUI() {
             const lista = document.getElementById('lista-carrito');
             const spanTotal = document.getElementById('total-carrito');
+            const badge = document.getElementById('badge-carrito');
             
             lista.innerHTML = "";
             let totalPlata = 0;
+            let totalArticulos = 0;
 
             if (carrito.length === 0) {
-                lista.innerHTML = `<p class="carrito-vacio">Aún no agregaste placas a tu pedido.</p>`;
+                lista.innerHTML = `<p class="carrito-vacio">El carrito está vacío. Agregá productos desde el catálogo.</p>`;
                 spanTotal.innerText = "0";
+                badge.style.display = 'none';
                 return;
             }
 
             carrito.forEach(item => {
                 const subtotal = item.precio * item.cantidad;
                 totalPlata += subtotal;
+                totalArticulos += item.cantidad;
+
                 lista.innerHTML += `
                     <div class="carrito-item">
-                        <span><b>${item.cantidad}x</b> ${item.nombre}</span>
-                        <span>$${subtotal.toLocaleString('es-AR')} <button onclick="eliminarDelCarrito('${item.id}')" style="background:red; color:white; border:none; border-radius:3px; cursor:pointer; margin-left:10px;">X</button></span>
+                        <div class="carrito-item-info">
+                            <span class="carrito-item-nombre">${item.cantidad}x ${item.nombre}</span>
+                            <span class="carrito-item-subtotal">$${subtotal.toLocaleString('es-AR')} ARS</span>
+                        </div>
+                        <button class="btn-eliminar" onclick="eliminarDelCarrito('${item.id}')">X</button>
                     </div>
                 `;
             });
 
             spanTotal.innerText = totalPlata.toLocaleString('es-AR');
+            
+            // Actualizar numerito flotante
+            badge.innerText = totalArticulos;
+            badge.style.display = 'flex';
         }
 
         function enviarWspCompra() {
@@ -460,28 +511,24 @@ ${cotizacionActual.detalle}
             }
 
             let texto = `¡Hola JF Reformas! Mi nombre es *${nombre}* y quiero hacer el siguiente pedido de materiales por la web:\n\n`;
-            
             let total = 0;
             carrito.forEach(item => {
                 texto += `✔️ ${item.cantidad}x placa/s modelo ${item.nombre}\n`;
                 total += item.precio * item.cantidad;
             });
-
             texto += `\n*TOTAL A ABONAR: $${total.toLocaleString('es-AR')}*\n\nPor favor indíquenme cómo seguimos con el pago y envío.`;
 
             window.open(`https://wa.me/${NUMERO_WSP}?text=${encodeURIComponent(texto)}`, '_blank');
         }
 
-        // --- 6. LÓGICA THREE.JS ---
+        // --- 6. LÓGICA THREE.JS (Se mantiene intacta) ---
         let scene, camera, renderer, walls = [];
         const textureLoader = new THREE.TextureLoader();
 
         function init3D() {
             const container = document.getElementById('canvas-container');
-            
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xdbe9f4); 
-            
             camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 1000);
             camera.position.set(0, 1.5, 0.1); 
 
@@ -490,93 +537,46 @@ ${cotizacionActual.detalle}
             container.appendChild(renderer.domElement);
 
             const controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true; 
-            controls.dampingFactor = 0.05;
-            controls.enableZoom = true; 
-            controls.minDistance = 0.3; 
-            controls.maxDistance = 1.9; 
-            controls.maxPolarAngle = Math.PI / 2 - 0.05; 
-            controls.target.set(0, 1.5, -1); 
+            controls.enableDamping = true; controls.dampingFactor = 0.05; controls.enableZoom = true; controls.minDistance = 0.3; controls.maxDistance = 1.9; controls.maxPolarAngle = Math.PI / 2 - 0.05; controls.target.set(0, 1.5, -1); 
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
-            hemiLight.position.set(0, 4, 0);
-            scene.add(hemiLight);
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6); hemiLight.position.set(0, 4, 0); scene.add(hemiLight);
 
-            // Las paredes del visor 3D mantienen su proporción visual base para previsualizar texturas.
             const wallGeo = new THREE.PlaneGeometry(4, 3);
+            const paredFrente = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 })); paredFrente.position.set(0, 1.5, -2); scene.add(paredFrente); walls[0] = paredFrente;
+            const paredAtras = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 })); paredAtras.position.set(0, 1.5, 2); paredAtras.rotation.y = Math.PI; scene.add(paredAtras); walls[1] = paredAtras;
+            const paredIzq = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 })); paredIzq.position.set(-2, 1.5, 0); paredIzq.rotation.y = Math.PI / 2; scene.add(paredIzq); walls[2] = paredIzq;
+            const paredDer = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 })); paredDer.position.set(2, 1.5, 0); paredDer.rotation.y = -Math.PI / 2; scene.add(paredDer); walls[3] = paredDer;
             
-            // Índices sincronizados: 0=Frente, 1=Atrás, 2=Izq, 3=Der
-            const paredFrente = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }));
-            paredFrente.position.set(0, 1.5, -2);
-            scene.add(paredFrente);
-            walls[0] = paredFrente;
-
-            const paredAtras = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }));
-            paredAtras.position.set(0, 1.5, 2);
-            paredAtras.rotation.y = Math.PI; 
-            scene.add(paredAtras);
-            walls[1] = paredAtras;
-
-            const paredIzq = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }));
-            paredIzq.position.set(-2, 1.5, 0);
-            paredIzq.rotation.y = Math.PI / 2;
-            scene.add(paredIzq);
-            walls[2] = paredIzq;
-
-            const paredDer = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 }));
-            paredDer.position.set(2, 1.5, 0);
-            paredDer.rotation.y = -Math.PI / 2;
-            scene.add(paredDer);
-            walls[3] = paredDer;
-
             const floorGeo = new THREE.PlaneGeometry(4, 4);
-            const floor = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xc2b2a1 }));
-            floor.rotation.x = -Math.PI / 2;
-            scene.add(floor);
-
-            const ceiling = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xfffaf0 }));
-            ceiling.rotation.x = Math.PI / 2;
-            ceiling.position.y = 3;
-            scene.add(ceiling);
+            const floor = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xc2b2a1 })); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+            const ceiling = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xfffaf0 })); ceiling.rotation.x = Math.PI / 2; ceiling.position.y = 3; scene.add(ceiling);
 
             if(catalogoPVC.length > 0) cambiarTexturaPared(catalogoPVC[0].id, true);
 
             function animate() {
-                requestAnimationFrame(animate);
-                controls.update(); 
-                renderer.render(scene, camera);
+                requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera);
             }
             animate();
         }
 
-        // Modificada para leer a qué pared aplicar y sincronizar con el formulario
         function cambiarTexturaPared(idProducto, forzarTodas = false) {
             const productoObj = catalogoPVC.find(p => p.id === idProducto);
-            const urlImagen = productoObj.imagen;
-            
-            // Leer qué radio button está seleccionado
             let objetivo = document.querySelector('input[name="sel-pared"]:checked').value;
             if (forzarTodas) objetivo = "todos";
 
-            textureLoader.load(urlImagen, function(textura) {
-                textura.wrapS = THREE.RepeatWrapping;
-                textura.wrapT = THREE.RepeatWrapping;
-                textura.repeat.set(2, 1); 
+            textureLoader.load(productoObj.imagen, function(textura) {
+                textura.wrapS = THREE.RepeatWrapping; textura.wrapT = THREE.RepeatWrapping; textura.repeat.set(2, 1); 
                 
                 if (objetivo === "todos") {
                     for (let i = 0; i < 4; i++) {
-                        walls[i].material.map = textura;
-                        walls[i].material.needsUpdate = true;
-                        // Sincronizar Formulario
+                        walls[i].material.map = textura; walls[i].material.needsUpdate = true;
                         estadoParedes[i].modeloId = productoObj.id;
                         document.getElementById(`lbl-mod-${i}`).innerText = productoObj.nombre;
                     }
                 } else {
                     let i = parseInt(objetivo);
-                    walls[i].material.map = textura;
-                    walls[i].material.needsUpdate = true;
-                    // Sincronizar Formulario
+                    walls[i].material.map = textura; walls[i].material.needsUpdate = true;
                     estadoParedes[i].modeloId = productoObj.id;
                     document.getElementById(`lbl-mod-${i}`).innerText = productoObj.nombre;
                 }
@@ -586,17 +586,11 @@ ${cotizacionActual.detalle}
         window.addEventListener('resize', () => {
             const container = document.getElementById('canvas-container');
             if(container && renderer) {
-                camera.aspect = container.clientWidth / container.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(container.clientWidth, container.clientHeight);
+                camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight);
             }
         });
 
-        // --- 7. INICIO ---
-        window.onload = () => {
-            inicializarUI();
-            init3D();
-        };
+        window.onload = () => { inicializarUI(); init3D(); };
     </script>
 </body>
 </html>
