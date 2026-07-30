@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JF Reformas - Cotizador y Catálogo</title>
     
-    <!-- Librerías de Three.js, Controles de Cámara y Generador de PDF -->
+    <!-- Librerías de Three.js y Controles de Cámara -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         /* --- VARIABLES DE COLOR Y ESTILO --- */
@@ -112,8 +111,8 @@
         .add-cart-controls { display: flex; gap: 15px; margin-top: 10px; align-items: center; }
         .add-cart-controls input { width: 80px; text-align: center; border-radius: 10px; border: 1px solid #ccc; font-weight: bold; padding: 12px; font-size: 16px;}
         
-        /* ESTILOS DE LA VISTA PREVIA DEL PRESUPUESTO (OPTIMIZADO PARA 1 PÁGINA) */
-        .presupuesto-preview { padding: 25px; background: white; color: #111; font-family: inherit; height: auto; }
+        /* ESTILOS DE LA VISTA PREVIA DEL PRESUPUESTO */
+        .presupuesto-preview { padding: 25px; background: white; color: #111; font-family: inherit; }
         .presupuesto-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 12px; margin-bottom: 15px; }
         .presupuesto-logo { max-height: 50px; width: auto; }
         .presupuesto-tabla { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
@@ -146,6 +145,24 @@
         .btn-flotante { position: fixed; bottom: 20px; right: 20px; background: var(--black); color: var(--gold); border: 2px solid var(--gold); border-radius: 50%; width: 65px; height: 65px; font-size: 24px; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 999; display: flex; justify-content: center; align-items: center; transition: var(--transition); }
         .btn-flotante:hover { transform: scale(1.08); background: var(--gold); color: var(--black); border-color: var(--black);}
         .badge-flotante { position: absolute; top: -5px; right: -5px; background: var(--white); color: var(--black); font-size: 14px; font-weight: bold; border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--gold); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
+
+        /* CONFIGURACIÓN ESTRICTA DE IMPRESIÓN PARA 1 SOLA PÁGINA EXACTA SIN BLANCOS */
+        @media print {
+            body * { visibility: hidden !important; }
+            #contenido-presupuesto-pdf, #contenido-presupuesto-pdf * { visibility: visible !important; }
+            #contenido-presupuesto-pdf { 
+                position: absolute !important; 
+                left: 0 !important; 
+                top: 0 !important; 
+                width: 100% !important; 
+                margin: 0 !important; 
+                padding: 10px !important; 
+                background: white !important;
+            }
+            .modal-overlay, .modal-content { background: transparent !important; box-shadow: none !important; overflow: visible !important; }
+            .modal-close, .btn-accion-pdf { display: none !important; }
+            @page { size: portrait; margin: 10mm; }
+        }
 
         /* =========================================
            MEDIA QUERIES (ADAPTACIÓN A CELULARES) 
@@ -277,30 +294,30 @@
 
     <!-- MODAL DE VISTA PREVIA Y DESCARGA DE PRESUPUESTO -->
     <div id="modal-presupuesto" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 620px;">
             <div class="modal-close" onclick="cerrarModalPresupuesto()">×</div>
             
-            <!-- CONTENEDOR EXCLUSIVO PARA CONVERTIR A PDF LIMPIO (SIN PÁGINAS EN BLANCO) -->
+            <!-- CONTENEDOR EXCLUSIVO PARA GUARDAR COMO PDF (1 SOLA PÁGINA EXACTA) -->
             <div id="contenido-presupuesto-pdf" class="presupuesto-preview">
                 <div class="presupuesto-header">
                     <div>
                         <img src="image3.jpg" class="presupuesto-logo" alt="JF Reformas" onerror="this.style.display='none'">
-                        <h2 style="margin: 5px 0 0 0; font-size: 18px;">Presupuesto Oficial</h2>
+                        <h2 style="margin: 3px 0 0 0; font-size: 16px;">Presupuesto Oficial</h2>
                     </div>
-                    <div style="text-align: right; font-size: 12px; color: #555;">
+                    <div style="text-align: right; font-size: 11px; color: #555;">
                         <strong>JF Reformas</strong><br>
                         Tel: 11-3189-5060<br>
                         <span id="presupuesto-fecha"></span>
                     </div>
                 </div>
 
-                <div style="background: #f9f9f9; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <div style="background: #f9f9f9; padding: 8px; border-radius: 6px; font-size: 11px; margin-bottom: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px;">
                     <div><strong>Ambiente:</strong> <span id="p-ambiente"></span></div>
                     <div><strong>Área Total:</strong> <span id="p-area"></span> m²</div>
                     <div><strong>Total Placas:</strong> <span id="p-placas"></span> u.</div>
                 </div>
 
-                <h3 style="font-size: 14px; margin-bottom: 8px;">Detalle por Pared:</h3>
+                <h3 style="font-size: 13px; margin-bottom: 6px;">Detalle por Pared:</h3>
                 <table class="presupuesto-tabla">
                     <thead>
                         <tr>
@@ -320,14 +337,14 @@
                     <div class="presupuesto-final"><span>Total Estimado:</span> <span id="p-tot">$0</span></div>
                 </div>
 
-                <p style="font-size: 10px; color: #777; text-align: center; margin-top: 20px; border-top: 1px solid #eee; padding-top: 8px;">
+                <p style="font-size: 9px; color: #777; text-align: center; margin-top: 15px; border-top: 1px solid #eee; padding-top: 5px;">
                     Presupuesto válido por 15 días. Sujeto a verificación en obra. ¡Gracias por elegir a JF Reformas!
                 </p>
             </div>
 
-            <!-- BOTÓN DE DESCARGA DIRECTA (FUERA DEL RECIBO PDF) -->
-            <div style="text-align: center; padding: 15px 25px 25px 25px; background: #fff; border-top: 1px solid #eee;">
-                <button class="btn-primario" onclick="descargarPDFModal()" style="background: var(--gold); color: var(--black); width: auto; padding: 12px 30px; margin-top:0;">📥 Descargar PDF</button>
+            <!-- BOTÓN DE GUARDAR COMO PDF (OPTIMIZADO PARA MÓVIL Y PC) -->
+            <div style="text-align: center; padding: 12px 20px 20px 20px; background: #fff; border-top: 1px solid #eee;" class="btn-accion-pdf">
+                <button class="btn-primario" onclick="window.print()" style="background: var(--gold); color: var(--black); width: auto; padding: 10px 25px; margin-top:0;">📥 Guardar como PDF / Imprimir</button>
             </div>
         </div>
     </div>
@@ -567,19 +584,6 @@
 
         function cerrarModalPresupuesto() {
             document.getElementById('modal-presupuesto').style.display = 'none';
-        }
-
-        // --- DESCARGAR PDF LIMPIO (1 SOLA PÁGINA EXACTA) ---
-        function descargarPDFModal() {
-            const elemento = document.getElementById('contenido-presupuesto-pdf');
-            const opt = {
-                margin:       5,
-                filename:     'Presupuesto_JF_Reformas.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().from(elemento).set(opt).save();
         }
 
         function enviarWspCotizacion() {
