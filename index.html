@@ -10,126 +10,150 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
     <style>
+        /* --- VARIABLES DE COLOR Y ESTILO --- */
+        :root {
+            --black: #111111;
+            --dark-grey: #222222;
+            --white: #ffffff;
+            --bg-color: #f9f9f9;
+            --gold: #D4AF37;       /* Dorado sobrio y elegante */
+            --gold-hover: #b5952f;
+            --border-rad: 16px;    /* Bordes bien redondeados */
+            --shadow: 0 8px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+
         /* ESTILOS GENERALES */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; color: #333; }
-        h1, h2, h3, h4 { color: #222; }
-        hr { border: 0; border-top: 1px solid #ddd; margin: 15px 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: var(--bg-color); color: var(--black); }
+        h1, h2, h3, h4 { color: var(--black); }
+        hr { border: 0; border-top: 1px solid #eaeaea; margin: 15px 0; }
+        
+        /* HEADER Y LOGO */
+        .header-container { text-align: center; margin-bottom: 25px; }
+        .logo-principal { max-height: 120px; width: auto; object-fit: contain; }
 
         /* NAVEGACIÓN */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
-        .tab-btn { padding: 10px 20px; cursor: pointer; background: #e0e0e0; border: none; border-radius: 5px; font-weight: bold; transition: background 0.3s; }
-        .tab-btn:hover { background: #d0d0d0; }
-        .tab-btn.active { background: #0056b3; color: white; }
+        .tabs { display: flex; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid #eaeaea; padding-bottom: 15px; justify-content: center; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: var(--white); border: 2px solid #eaeaea; border-radius: 30px; font-weight: bold; transition: var(--transition); color: #555; font-size: 15px;}
+        .tab-btn:hover { border-color: var(--gold); color: var(--black); }
+        .tab-btn.active { background: var(--black); color: var(--gold); border-color: var(--black); box-shadow: var(--shadow); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* BOTONES WHATSAPP */
-        .btn-wsp { background: #25D366; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .btn-wsp:hover { background: #1ebe57; }
+        /* BOTONES PRINCIPALES */
+        .btn-primario { background: var(--black); color: var(--gold); border: none; padding: 14px; width: 100%; border-radius: var(--border-rad); font-size: 16px; font-weight: bold; cursor: pointer; transition: var(--transition); margin-top: 15px; }
+        .btn-primario:hover { background: var(--gold); color: var(--white); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
+
+        .btn-wsp { background: #25D366; color: white; border: none; padding: 14px; width: 100%; border-radius: var(--border-rad); font-size: 16px; font-weight: bold; cursor: pointer; transition: var(--transition); margin-top: 15px; }
+        .btn-wsp:hover { background: #1ebe57; transform: translateY(-2px); }
 
         /* SECCIÓN COTIZADOR */
-        .cotizador-layout { display: flex; flex-wrap: wrap; gap: 20px; }
-        .formulario, .visor-3d { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .cotizador-layout { display: flex; flex-wrap: wrap; gap: 25px; }
+        .formulario, .visor-3d { background: var(--white); padding: 25px; border-radius: var(--border-rad); box-shadow: var(--shadow); }
         .formulario { flex: 1; min-width: 320px; }
         .visor-3d { flex: 2; min-width: 400px; }
         
-        .formulario label { display: block; margin-top: 10px; font-weight: bold; }
-        .formulario select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;}
+        .formulario label { display: block; margin-top: 12px; font-weight: bold; font-size: 14px; }
+        .formulario select, .formulario input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; outline: none; transition: var(--transition); font-family: inherit;}
+        .formulario select:focus, .formulario input:focus { border-color: var(--gold); box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); }
         
         /* GRID DE PAREDES AVANZADO */
-        .grid-paredes-avanzado { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .pared-box { background: #f9f9f9; padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
-        .pared-box h4 { margin: 0 0 10px 0; font-size: 14px; color: #0056b3; }
-        .inputs-medidas { display: flex; gap: 5px; margin-bottom: 8px; }
-        .inputs-medidas input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        .diseño-label { margin: 0; font-size: 13px; color: #444; background: #eee; padding: 4px; border-radius: 3px; text-align: center;}
+        .grid-paredes-avanzado { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .pared-box { background: var(--bg-color); padding: 15px; border: 1px solid #eaeaea; border-radius: 12px; transition: var(--transition); }
+        .pared-box:hover { border-color: var(--gold); }
+        .pared-box h4 { margin: 0 0 10px 0; font-size: 14px; color: var(--black); border-bottom: 1px solid #eaeaea; padding-bottom: 5px;}
+        .inputs-medidas { display: flex; gap: 8px; margin-bottom: 10px; }
+        .diseño-label { margin: 0; font-size: 13px; color: #555; background: var(--white); padding: 6px; border-radius: 8px; text-align: center; border: 1px solid #eaeaea;}
         
-        .btn-calcular { width: 100%; margin-top: 20px; padding: 12px; background: #0056b3; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
-        .btn-calcular:hover { background: #004494; }
-        
-        .resultado { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 5px; border-left: 5px solid #0056b3; }
-        .resumen-desglose { margin: 10px 0; padding-left: 20px; font-size: 14px; }
+        .resultado { margin-top: 25px; padding: 20px; background: var(--black); color: var(--white); border-radius: var(--border-rad); border: 2px solid var(--gold); }
+        .resultado h3 { color: var(--gold); margin-top: 0; }
+        .resumen-desglose { margin: 10px 0; padding-left: 20px; font-size: 14px; color: #ddd; }
+        .total-destacado { color: var(--gold); font-size: 20px; border-top: 1px solid #444; padding-top: 10px; margin-top: 10px;}
 
         /* VISUALIZADOR 3D */
-        #canvas-container { width: 100%; height: 400px; background: #c2c9d1; border-radius: 5px; overflow: hidden; margin-bottom: 15px; cursor: grab; }
+        #canvas-container { width: 100%; height: 450px; background: #e0e0e0; border-radius: var(--border-rad); overflow: hidden; margin-bottom: 15px; cursor: grab; border: 1px solid #eaeaea;}
         #canvas-container:active { cursor: grabbing; }
         
-        .selector-paredes { display: flex; gap: 5px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;}
+        .selector-paredes { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; background: var(--bg-color); padding: 10px; border-radius: 12px;}
         .radio-pared { display: none; }
-        .label-pared { padding: 6px 12px; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; font-size: 13px; background: #fff; font-weight: bold;}
-        .radio-pared:checked + .label-pared { background: #0056b3; color: white; border-color: #0056b3; }
+        .label-pared { padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; cursor: pointer; font-size: 13px; background: var(--white); font-weight: bold; transition: var(--transition);}
+        .radio-pared:checked + .label-pared { background: var(--black); color: var(--gold); border-color: var(--black); }
 
-        .texturas-btn-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
-        .textura-btn { min-width: 90px; padding: 8px; cursor: pointer; border: 1px solid #aaa; border-radius: 4px; background: #f9f9f9; text-align: center; font-size: 12px; font-weight: bold; }
-        .textura-btn:hover { background: #eee; border-color: #0056b3; }
+        .texturas-btn-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; }
+        .textura-btn { min-width: 100px; padding: 10px; cursor: pointer; border: 1px solid #ddd; border-radius: 10px; background: var(--white); text-align: center; font-size: 13px; font-weight: bold; transition: var(--transition); }
+        .textura-btn:hover { border-color: var(--gold); color: var(--gold); }
 
         /* CATÁLOGO LIMPIO */
-        .catalogo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-bottom: 80px; }
-        .producto-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; border: 1px solid #eee; }
-        .producto-card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); border-color: #0056b3; }
-        .producto-card img { width: 100%; height: 180px; object-fit: cover; }
-        .producto-info { padding: 15px; text-align: center; }
-        .producto-info h3 { margin: 0 0 10px 0; color: #333; }
-        .btn-ver-mas { background: #f0f0f0; border: 1px solid #ccc; padding: 8px 15px; border-radius: 4px; color: #333; font-weight: bold; width: 100%; cursor: pointer; }
-        .producto-card:hover .btn-ver-mas { background: #0056b3; color: white; border-color: #0056b3; }
+        .catalogo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; margin-bottom: 80px; }
+        .producto-card { background: var(--white); border-radius: var(--border-rad); overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); border: 2px solid transparent; }
+        .producto-card:hover { transform: translateY(-5px); border-color: var(--gold); box-shadow: 0 12px 25px rgba(212, 175, 55, 0.15); }
+        .producto-card img { width: 100%; height: 200px; object-fit: cover; }
+        .producto-info { padding: 20px; text-align: center; }
+        .producto-info h3 { margin: 0 0 15px 0; color: var(--black); font-size: 18px;}
+        .btn-ver-mas { background: var(--bg-color); border: 1px solid #ddd; padding: 10px 20px; border-radius: 30px; color: var(--black); font-weight: bold; width: 100%; cursor: pointer; transition: var(--transition);}
+        .producto-card:hover .btn-ver-mas { background: var(--black); color: var(--gold); border-color: var(--black); }
 
         /* MODAL DE DETALLES DEL PRODUCTO */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1001; justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 90%; max-width: 700px; border-radius: 8px; overflow: hidden; display: flex; flex-wrap: wrap; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .modal-close { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #555; background: #eee; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; }
-        .modal-close:hover { background: #ff4444; color: white; }
-        .modal-img { flex: 1; min-width: 250px; background: #eee; }
-        .modal-img img { width: 100%; height: 100%; object-fit: cover; min-height: 250px; }
-        .modal-body { flex: 1.5; padding: 25px; min-width: 300px; }
-        .modal-body h2 { margin-top: 0; color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .badge-precio { display: inline-block; background: #ffc107; padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 18px; margin-bottom: 15px; }
-        .modal-desc { margin-bottom: 15px; font-size: 15px; line-height: 1.5; color: #444; }
-        .modal-rec { background: #f8f9fa; padding: 10px; border-left: 4px solid #17a2b8; font-size: 14px; margin-bottom: 20px; border-radius: 0 4px 4px 0; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 1001; justify-content: center; align-items: center; }
+        .modal-content { background: var(--white); width: 90%; max-width: 750px; border-radius: var(--border-rad); overflow: hidden; display: flex; flex-wrap: wrap; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: var(--black); background: var(--bg-color); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; transition: var(--transition); z-index: 10;}
+        .modal-close:hover { background: var(--gold); color: var(--white); }
+        .modal-img { flex: 1; min-width: 280px; background: #eee; }
+        .modal-img img { width: 100%; height: 100%; object-fit: cover; min-height: 300px; }
+        .modal-body { flex: 1.5; padding: 30px; min-width: 300px; display: flex; flex-direction: column;}
+        .modal-body h2 { margin-top: 0; color: var(--black); font-size: 26px;}
+        .badge-precio { display: inline-block; background: var(--black); color: var(--gold); padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 18px; margin-bottom: 15px; border: 1px solid var(--gold);}
+        .modal-desc { margin-bottom: 15px; font-size: 15px; line-height: 1.6; color: #555; }
+        .modal-rec { background: var(--bg-color); padding: 12px; border-left: 4px solid var(--gold); font-size: 14px; margin-bottom: auto; border-radius: 0 8px 8px 0; color: #444;}
         
-        .add-cart-controls { display: flex; gap: 10px; margin-top: 15px; align-items: center; }
-        .add-cart-controls input { width: 60px; text-align: center; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; padding: 10px; font-size: 16px;}
-        .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; flex-grow: 1; }
-        .btn-add:hover { background: #218838; }
-
-        /* CARRITO LATERAL (OFF-CANVAS) */
-        .carrito-lateral { position: fixed; top: 0; right: -400px; width: 100%; max-width: 380px; height: 100vh; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: right 0.3s ease; z-index: 1000; display: flex; flex-direction: column; }
+        .add-cart-controls { display: flex; gap: 15px; margin-top: 25px; align-items: center; }
+        .add-cart-controls input { width: 70px; text-align: center; border-radius: 10px; border: 1px solid #ccc; font-weight: bold; padding: 12px; font-size: 16px;}
+        
+        /* CARRITO LATERAL OFF-CANVAS */
+        .carrito-lateral { position: fixed; top: 0; right: -420px; width: 100%; max-width: 400px; height: 100vh; background: var(--white); box-shadow: -10px 0 30px rgba(0,0,0,0.15); transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 1000; display: flex; flex-direction: column; border-left: 2px solid var(--gold);}
         .carrito-lateral.abierto { right: 0; }
-        .carrito-header { padding: 20px; background: #0056b3; color: white; display: flex; justify-content: space-between; align-items: center; }
-        .carrito-header h2 { margin: 0; font-size: 20px; }
-        .cerrar-carrito { cursor: pointer; font-size: 24px; font-weight: bold; }
-        .carrito-body { padding: 20px; flex-grow: 1; overflow-y: auto; }
-        .carrito-footer { padding: 20px; border-top: 1px solid #eee; background: #f9f9f9; }
+        .carrito-header { padding: 25px; background: var(--black); color: var(--gold); display: flex; justify-content: space-between; align-items: center; }
+        .carrito-header h2 { margin: 0; font-size: 22px; color: var(--white);}
+        .cerrar-carrito { cursor: pointer; font-size: 28px; font-weight: bold; transition: var(--transition); }
+        .cerrar-carrito:hover { color: var(--white); transform: scale(1.1); }
+        .carrito-body { padding: 25px; flex-grow: 1; overflow-y: auto; background: var(--bg-color); }
+        .carrito-footer { padding: 25px; border-top: 1px solid #eaeaea; background: var(--white); }
         
-        .carrito-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 12px 0; }
-        .carrito-item-info { display: flex; flex-direction: column; }
-        .carrito-item-nombre { font-weight: bold; color: #333; }
-        .carrito-item-subtotal { color: #666; font-size: 14px; }
-        .btn-eliminar { background: #dc3545; color: white; border: none; border-radius: 4px; width: 30px; height: 30px; cursor: pointer; font-weight: bold; }
+        .carrito-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 15px 0; }
+        .carrito-item-info { display: flex; flex-direction: column; gap: 5px;}
+        .carrito-item-nombre { font-weight: bold; color: var(--black); }
+        .carrito-item-subtotal { color: var(--gold); font-size: 15px; font-weight: bold;}
+        .btn-eliminar { background: #ff4444; color: white; border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-weight: bold; transition: var(--transition); }
+        .btn-eliminar:hover { background: #cc0000; }
         
-        .carrito-vacio { color: #777; font-style: italic; text-align: center; margin-top: 50px; }
+        .carrito-vacio { color: #888; font-style: italic; text-align: center; margin-top: 50px; }
         
         /* BOTÓN FLOTANTE CARRITO */
-        .btn-flotante { position: fixed; bottom: 20px; right: 20px; background: #0056b3; color: white; border: none; border-radius: 50%; width: 65px; height: 65px; font-size: 24px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 999; display: flex; justify-content: center; align-items: center; transition: transform 0.2s; }
-        .btn-flotante:hover { transform: scale(1.05); }
-        .badge-flotante { position: absolute; top: 0; right: 0; background: #dc3545; color: white; font-size: 12px; font-weight: bold; border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; border: 2px solid white; }
+        .btn-flotante { position: fixed; bottom: 25px; right: 25px; background: var(--black); color: var(--gold); border: 2px solid var(--gold); border-radius: 50%; width: 70px; height: 70px; font-size: 26px; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 999; display: flex; justify-content: center; align-items: center; transition: var(--transition); }
+        .btn-flotante:hover { transform: scale(1.08); background: var(--gold); color: var(--black); border-color: var(--black);}
+        .badge-flotante { position: absolute; top: -5px; right: -5px; background: var(--white); color: var(--black); font-size: 14px; font-weight: bold; border-radius: 50%; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--gold); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
     </style>
 </head>
 <body>
 
-    <h1>JF Reformas - Placas de PVC</h1>
-
-    <div class="tabs">
-        <button class="tab-btn active" onclick="cambiarTab('cotizador')">Cotizador y 3D</button>
-        <button class="tab-btn" onclick="cambiarTab('catalogo')">Catálogo de Placas</button>
+    <!-- LOGO DE LA EMPRESA DESDE GITHUB -->
+    <div class="header-container">
+        <!-- REEMPLAZAR EL SRC DE ABAJO CON EL ENLACE RAW DE TU GITHUB -->
+        <img src="imagen_3.png.jpg" alt="Logo JF Reformas" class="logo-principal" onerror="this.src='https://via.placeholder.com/300x120?text=Logo+JF+Reformas'">
     </div>
 
-    <!-- TAB 1: COTIZADOR Y 3D (Igual que antes) -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="cambiarTab('cotizador')">Cotizador y Visor 3D</button>
+        <button class="tab-btn" onclick="cambiarTab('catalogo')">Catálogo Exclusivo</button>
+    </div>
+
+    <!-- TAB 1: COTIZADOR Y 3D -->
     <div id="cotizador" class="tab-content active">
         <div class="cotizador-layout">
             <!-- Formulario de Cálculo -->
             <div class="formulario">
-                <h2>Cotizá tu instalación</h2>
-                <p style="font-size: 14px; color: #666; margin-top: -10px;">Ingresá las medidas de las paredes. Asigná diseños distintos en el visor 3D.</p>
+                <h2>Cotizá tu ambiente</h2>
+                <p style="font-size: 14px; color: #666; margin-top: -10px;">Ingresá las medidas de tus paredes y aplicá los diseños desde el visor 3D.</p>
                 
                 <div class="grid-paredes-avanzado">
                     <div class="pared-box">
@@ -172,36 +196,36 @@
                     <option value="bano">Baño / Ambiente Húmedo</option>
                 </select>
 
-                <button class="btn-calcular" onclick="calcularPresupuesto()">Calcular Presupuesto</button>
+                <button class="btn-primario" onclick="calcularPresupuesto()">Calcular Presupuesto</button>
 
                 <div id="resultado-box" class="resultado" style="display: none;">
-                    <h3>Resumen:</h3>
+                    <h3>Resumen del Proyecto:</h3>
                     <p>Área total a cubrir: <b id="res-area">0</b> m²</p>
-                    <p>Total de Placas necesarias: <b id="res-placas">0</b> u.</p>
+                    <p>Total de Placas (2.93m² c/u): <b id="res-placas">0</b> u.</p>
                     <ul id="res-desglose" class="resumen-desglose"></ul>
-                    <hr>
+                    <hr style="border-color: #444;">
                     <p>Costo de Materiales: <b id="res-materiales">$0</b></p>
                     <p>Costo de Instalación: <b id="res-instalacion">$0</b></p>
-                    <h3 style="color: #0056b3;">Total Estimado: <b id="res-total">$0</b></h3>
-                    <button class="btn-wsp" onclick="enviarWspCotizacion()">Enviar Consulta por WhatsApp</button>
+                    <h3 class="total-destacado">Total Estimado: <b id="res-total">$0</b> ARS</h3>
+                    <button class="btn-wsp" onclick="enviarWspCotizacion()">Coordinar por WhatsApp</button>
                 </div>
             </div>
 
             <!-- Visor 3D -->
             <div class="visor-3d">
-                <h2>Habitación 3D (Deslizá y hacé zoom)</h2>
+                <h2>Diseñá en 3D</h2>
                 <div class="selector-paredes">
-                    <span style="font-size:14px; margin-right:5px;">Pintar:</span>
+                    <span style="font-size:14px; margin-right:5px; color:#555;">Pintar:</span>
                     <input type="radio" name="sel-pared" id="sel-todas" value="todos" class="radio-pared" checked>
                     <label for="sel-todas" class="label-pared">Todas</label>
                     <input type="radio" name="sel-pared" id="sel-p0" value="0" class="radio-pared">
-                    <label for="sel-p0" class="label-pared">P1 (Frente)</label>
+                    <label for="sel-p0" class="label-pared">Frente</label>
                     <input type="radio" name="sel-pared" id="sel-p1" value="1" class="radio-pared">
-                    <label for="sel-p1" class="label-pared">P2 (Atrás)</label>
+                    <label for="sel-p1" class="label-pared">Atrás</label>
                     <input type="radio" name="sel-pared" id="sel-p2" value="2" class="radio-pared">
-                    <label for="sel-p2" class="label-pared">P3 (Izq)</label>
+                    <label for="sel-p2" class="label-pared">Izq</label>
                     <input type="radio" name="sel-pared" id="sel-p3" value="3" class="radio-pared">
-                    <label for="sel-p3" class="label-pared">P4 (Der)</label>
+                    <label for="sel-p3" class="label-pared">Der</label>
                 </div>
                 <div id="texturas-botones" class="texturas-btn-container"></div>
                 <div id="canvas-container"></div>
@@ -211,7 +235,6 @@
 
     <!-- TAB 2: CATÁLOGO DE PRODUCTOS -->
     <div id="catalogo" class="tab-content">
-        <h2>Catálogo de Diseños Exclusivos</h2>
         <div id="catalogo-grid" class="catalogo-grid">
             <!-- Tarjetas se generan por JS -->
         </div>
@@ -231,14 +254,14 @@
                 
                 <p id="modal-desc" class="modal-desc">Descripción del producto.</p>
                 <div class="modal-rec">
-                    <strong>💡 Sugerencia:</strong> <span id="modal-rec">Recomendación de uso.</span>
+                    <strong style="color:var(--black);">💡 Sugerencia:</strong> <span id="modal-rec">Recomendación de uso.</span>
                 </div>
                 
                 <hr>
-                <p style="margin-bottom: 5px; font-weight: bold;">¿Cuántas placas vas a llevar?</p>
+                <p style="margin-bottom: 5px; font-weight: bold; color: var(--black);">¿Cuántas placas vas a llevar?</p>
                 <div class="add-cart-controls">
                     <input type="number" id="modal-cantidad" min="1" value="1">
-                    <button class="btn-add" id="btn-modal-add" onclick="">Agregar al Carrito</button>
+                    <button class="btn-primario" id="btn-modal-add" style="margin-top:0; flex-grow: 1;">Agregar al Pedido</button>
                 </div>
             </div>
         </div>
@@ -254,9 +277,9 @@
             <p class="carrito-vacio">El carrito está vacío.</p>
         </div>
         <div class="carrito-footer">
-            <h3 style="margin-top: 0;">Total: $<span id="total-carrito">0</span></h3>
-            <label style="font-size: 14px; font-weight: bold;">Tus Datos para el pedido:</label>
-            <input type="text" id="nombre-cliente" placeholder="Nombre y Apellido" style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
+            <h3 style="margin-top: 0; color: var(--black);">Total: <span style="color: var(--gold);">$<span id="total-carrito">0</span></span></h3>
+            <label style="font-size: 14px; font-weight: bold; color: #555;">Tus Datos para el pedido:</label>
+            <input type="text" id="nombre-cliente" placeholder="Nombre y Apellido" style="width:100%; padding:12px; margin-top:8px; margin-bottom:15px; border:1px solid #ddd; border-radius:10px; box-sizing:border-box; outline:none;">
             <button class="btn-wsp" onclick="enviarWspCompra()">Finalizar Compra por Wsp</button>
         </div>
     </div>
@@ -268,7 +291,7 @@
     </button>
 
     <script>
-        // --- 1. BASE DE DATOS Y VARIABLES (Con descripciones agregadas) ---
+        // --- 1. BASE DE DATOS Y VARIABLES ---
         const catalogoPVC = [
             { id: 'serena', nombre: 'Serena', imagen: 'serena.jpg', precio: 30000, desc: 'Un diseño sutil y luminoso que aporta claridad y amplitud a cualquier espacio.', rec: 'Ideal para pasillos oscuros, livings pequeños y baños modernos.' },
             { id: 'trentino', nombre: 'Trentino', imagen: 'trentino.jpg', precio: 30000, desc: 'Textura símil piedra natural en tonos neutros. Elegancia garantizada.', rec: 'Excelente para paredes principales de sala de estar o recibidores.' },
@@ -316,7 +339,6 @@
             const botonesContainer = document.getElementById('texturas-botones');
 
             catalogoPVC.forEach(producto => {
-                // Tarjeta limpia
                 const cardHtml = `
                     <div class="producto-card" onclick="abrirModal('${producto.id}')">
                         <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.src='https://via.placeholder.com/250?text=Sin+Imagen'">
@@ -328,7 +350,6 @@
                 `;
                 catalogoContainer.innerHTML += cardHtml;
 
-                // Botones del Visor 3D
                 const btnHtml = `<button class="textura-btn" onclick="cambiarTexturaPared('${producto.id}')">${producto.nombre}</button>`;
                 botonesContainer.innerHTML += btnHtml;
             });
@@ -341,10 +362,8 @@
             }
         }
 
-        // Funciones del Modal
         function abrirModal(idProducto) {
             const prod = catalogoPVC.find(p => p.id === idProducto);
-            
             document.getElementById('modal-img-src').src = prod.imagen;
             document.getElementById('modal-nombre').innerText = prod.nombre;
             document.getElementById('modal-precio').innerText = prod.precio.toLocaleString('es-AR');
@@ -352,31 +371,16 @@
             document.getElementById('modal-rec').innerText = prod.rec;
             document.getElementById('modal-cantidad').value = 1;
             
-            // Asignar el ID al botón de agregar
             const btnAdd = document.getElementById('btn-modal-add');
             btnAdd.onclick = function() { agregarAlCarrito(prod.id); };
-
             document.getElementById('modal-producto').style.display = 'flex';
         }
 
-        function cerrarModal() {
-            document.getElementById('modal-producto').style.display = 'none';
-        }
-
-        function cerrarModalFuera(event) {
-            if (event.target === document.getElementById('modal-producto')) {
-                cerrarModal();
-            }
-        }
-
-        // Funciones del Menú Lateral (Carrito)
-        function toggleCarrito() {
-            const panel = document.getElementById('carrito-lateral');
-            panel.classList.toggle('abierto');
-        }
+        function cerrarModal() { document.getElementById('modal-producto').style.display = 'none'; }
+        function cerrarModalFuera(event) { if (event.target === document.getElementById('modal-producto')) cerrarModal(); }
+        function toggleCarrito() { document.getElementById('carrito-lateral').classList.toggle('abierto'); }
 
         // --- 4. LÓGICA DEL COTIZADOR ---
-        // (La lógica del cotizador se mantiene exactamente igual que en la versión anterior)
         function calcularPresupuesto() {
             const ambiente = document.getElementById('ambiente').value;
             let areaTotal = 0, totalPlacasGenerales = 0, totalMateriales = 0, paredesCompletadas = 0;
@@ -414,7 +418,7 @@
 
             let htmlDesglose = "";
             for (const [nombreModelo, cantPlacas] of Object.entries(detallePlacasPorModelo)) {
-                htmlDesglose += `<li><b>${cantPlacas}</b> placas modelo <i>${nombreModelo}</i></li>`;
+                htmlDesglose += `<li style="margin-bottom: 4px;"><b style="color:var(--gold);">${cantPlacas}</b> placas modelo <i>${nombreModelo}</i></li>`;
             }
 
             cotizacionActual = { area: areaTotal.toFixed(2), placas: totalPlacasGenerales, ambiente: ambiente === 'bano' ? "Baño" : "Estándar", materiales: totalMateriales, instalacion: costoInstalacion, total: totalGeneral, detalle: textoWspDetalle };
@@ -424,12 +428,12 @@
             document.getElementById('res-desglose').innerHTML = htmlDesglose;
             document.getElementById('res-materiales').innerText = "$" + totalMateriales.toLocaleString('es-AR');
             document.getElementById('res-instalacion').innerText = "$" + costoInstalacion.toLocaleString('es-AR');
-            document.getElementById('res-total').innerText = "$" + totalGeneral.toLocaleString('es-AR');
+            document.getElementById('res-total').innerText = totalGeneral.toLocaleString('es-AR');
             document.getElementById('resultado-box').style.display = 'block';
         }
 
         function enviarWspCotizacion() {
-            const texto = `¡Hola JF Reformas! Quisiera avanzar con una instalación de PVC. \n*MEDIDAS POR PARED:*\n${cotizacionActual.detalle}*RESUMEN:*\n- Área total: ${cotizacionActual.area} m²\n- Total de Placas: ${cotizacionActual.placas} u.\n- Tipo de ambiente: ${cotizacionActual.ambiente}\n- Presupuesto Materiales: $${cotizacionActual.materiales.toLocaleString('es-AR')}\n- Presupuesto Instalación: $${cotizacionActual.instalacion.toLocaleString('es-AR')}\n*TOTAL ESTIMADO: $${cotizacionActual.total.toLocaleString('es-AR')}*\n\n¿Podemos coordinar?`;
+            const texto = `¡Hola JF Reformas! Quisiera avanzar con una instalación de PVC. \n\n*MEDIDAS POR PARED:*\n${cotizacionActual.detalle}\n*RESUMEN:*\n- Área total: ${cotizacionActual.area} m²\n- Total de Placas: ${cotizacionActual.placas} u.\n- Tipo de ambiente: ${cotizacionActual.ambiente}\n- Presupuesto Materiales: $${cotizacionActual.materiales.toLocaleString('es-AR')}\n- Presupuesto Instalación: $${cotizacionActual.instalacion.toLocaleString('es-AR')}\n\n*TOTAL ESTIMADO: $${cotizacionActual.total.toLocaleString('es-AR')}*\n\n¿Podemos coordinar?`;
             window.open(`https://wa.me/${NUMERO_WSP}?text=${encodeURIComponent(texto)}`, '_blank');
         }
 
@@ -439,20 +443,14 @@
             const producto = catalogoPVC.find(p => p.id === idProducto);
             
             const itemExistente = carrito.find(item => item.id === idProducto);
-            if (itemExistente) {
-                itemExistente.cantidad += cantidad;
-            } else {
-                carrito.push({ ...producto, cantidad: cantidad });
-            }
+            if (itemExistente) itemExistente.cantidad += cantidad;
+            else carrito.push({ ...producto, cantidad: cantidad });
             
             actualizarCarritoUI();
             cerrarModal(); 
             
-            // Abrimos el panel lateral automáticamente para mostrar el éxito
             const panel = document.getElementById('carrito-lateral');
-            if(!panel.classList.contains('abierto')) {
-                toggleCarrito();
-            }
+            if(!panel.classList.contains('abierto')) toggleCarrito();
         }
 
         function eliminarDelCarrito(idProducto) {
@@ -466,8 +464,7 @@
             const badge = document.getElementById('badge-carrito');
             
             lista.innerHTML = "";
-            let totalPlata = 0;
-            let totalArticulos = 0;
+            let totalPlata = 0, totalArticulos = 0;
 
             if (carrito.length === 0) {
                 lista.innerHTML = `<p class="carrito-vacio">El carrito está vacío. Agregá productos desde el catálogo.</p>`;
@@ -493,22 +490,14 @@
             });
 
             spanTotal.innerText = totalPlata.toLocaleString('es-AR');
-            
-            // Actualizar numerito flotante
             badge.innerText = totalArticulos;
             badge.style.display = 'flex';
         }
 
         function enviarWspCompra() {
             const nombre = document.getElementById('nombre-cliente').value;
-            if (carrito.length === 0) {
-                alert("El carrito está vacío. Agregá productos primero.");
-                return;
-            }
-            if (!nombre) {
-                alert("Por favor, ingresá tu nombre para el pedido.");
-                return;
-            }
+            if (carrito.length === 0) { alert("El carrito está vacío. Agregá productos primero."); return; }
+            if (!nombre) { alert("Por favor, ingresá tu nombre para el pedido."); document.getElementById('nombre-cliente').focus(); return; }
 
             let texto = `¡Hola JF Reformas! Mi nombre es *${nombre}* y quiero hacer el siguiente pedido de materiales por la web:\n\n`;
             let total = 0;
@@ -521,14 +510,14 @@
             window.open(`https://wa.me/${NUMERO_WSP}?text=${encodeURIComponent(texto)}`, '_blank');
         }
 
-        // --- 6. LÓGICA THREE.JS (Se mantiene intacta) ---
+        // --- 6. LÓGICA THREE.JS ---
         let scene, camera, renderer, walls = [];
         const textureLoader = new THREE.TextureLoader();
 
         function init3D() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xdbe9f4); 
+            scene.background = new THREE.Color(0xf0f0f0); 
             camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 1000);
             camera.position.set(0, 1.5, 0.1); 
 
@@ -539,24 +528,24 @@
             const controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true; controls.dampingFactor = 0.05; controls.enableZoom = true; controls.minDistance = 0.3; controls.maxDistance = 1.9; controls.maxPolarAngle = Math.PI / 2 - 0.05; controls.target.set(0, 1.5, -1); 
 
-            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6); hemiLight.position.set(0, 4, 0); scene.add(hemiLight);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x555555, 0.7); hemiLight.position.set(0, 4, 0); scene.add(hemiLight);
 
             const wallGeo = new THREE.PlaneGeometry(4, 3);
-            const paredFrente = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 })); paredFrente.position.set(0, 1.5, -2); scene.add(paredFrente); walls[0] = paredFrente;
-            const paredAtras = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 })); paredAtras.position.set(0, 1.5, 2); paredAtras.rotation.y = Math.PI; scene.add(paredAtras); walls[1] = paredAtras;
-            const paredIzq = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 })); paredIzq.position.set(-2, 1.5, 0); paredIzq.rotation.y = Math.PI / 2; scene.add(paredIzq); walls[2] = paredIzq;
-            const paredDer = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xf5f5f5 })); paredDer.position.set(2, 1.5, 0); paredDer.rotation.y = -Math.PI / 2; scene.add(paredDer); walls[3] = paredDer;
+            const paredFrente = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff })); paredFrente.position.set(0, 1.5, -2); scene.add(paredFrente); walls[0] = paredFrente;
+            const paredAtras = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff })); paredAtras.position.set(0, 1.5, 2); paredAtras.rotation.y = Math.PI; scene.add(paredAtras); walls[1] = paredAtras;
+            const paredIzq = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff })); paredIzq.position.set(-2, 1.5, 0); paredIzq.rotation.y = Math.PI / 2; scene.add(paredIzq); walls[2] = paredIzq;
+            const paredDer = new THREE.Mesh(wallGeo, new THREE.MeshLambertMaterial({ color: 0xffffff })); paredDer.position.set(2, 1.5, 0); paredDer.rotation.y = -Math.PI / 2; scene.add(paredDer); walls[3] = paredDer;
             
+            // Piso gris cemento pulido elegante para que resalte el negro y dorado
             const floorGeo = new THREE.PlaneGeometry(4, 4);
-            const floor = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xc2b2a1 })); floor.rotation.x = -Math.PI / 2; scene.add(floor);
-            const ceiling = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xfffaf0 })); ceiling.rotation.x = Math.PI / 2; ceiling.position.y = 3; scene.add(ceiling);
+            const floor = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0x999999 })); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+            
+            const ceiling = new THREE.Mesh(floorGeo, new THREE.MeshLambertMaterial({ color: 0xffffff })); ceiling.rotation.x = Math.PI / 2; ceiling.position.y = 3; scene.add(ceiling);
 
             if(catalogoPVC.length > 0) cambiarTexturaPared(catalogoPVC[0].id, true);
 
-            function animate() {
-                requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera);
-            }
+            function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
             animate();
         }
 
