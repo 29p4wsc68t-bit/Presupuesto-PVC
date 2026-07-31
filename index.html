@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JF Reformas - Cotizador y Catálogo</title>
     
-    <!-- Librerías de Three.js y Controles de Cámara -->
+    <!-- Librerías de Three.js, Controles de Cámara y Generador de PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         /* --- VARIABLES DE COLOR Y ESTILO --- */
@@ -95,7 +96,7 @@
 
         /* MODALES */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 1001; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;}
-        .modal-content { background: var(--white); width: 100%; max-width: 650px; max-height: 90vh; border-radius: var(--border-rad); overflow-y: auto; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .modal-content { background: var(--white); width: 100%; max-width: 600px; max-height: 90vh; border-radius: var(--border-rad); overflow-y: auto; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
         .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: var(--black); background: var(--white); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; transition: var(--transition); z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.2);}
         .modal-close:hover { background: var(--gold); color: var(--white); }
         
@@ -111,9 +112,9 @@
         .add-cart-controls { display: flex; gap: 15px; margin-top: 10px; align-items: center; }
         .add-cart-controls input { width: 80px; text-align: center; border-radius: 10px; border: 1px solid #ccc; font-weight: bold; padding: 12px; font-size: 16px;}
         
-        /* ESTILOS DE LA VISTA PREVIA DEL PRESUPUESTO */
-        .presupuesto-preview { padding: 25px; background: white; color: #111; font-family: inherit; }
-        .presupuesto-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 12px; margin-bottom: 15px; }
+        /* ESTILOS DE LA VISTA PREVIA DEL PRESUPUESTO (OPTIMIZADO PARA 1 PÁGINA EXACTA) */
+        .presupuesto-preview { padding: 25px; background: white; color: #111; font-family: inherit; width: 540px; box-sizing: border-box; }
+        .presupuesto-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 12px; }
         .presupuesto-logo { max-height: 45px; width: auto; }
         .presupuesto-tabla { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
         .presupuesto-tabla th, .presupuesto-tabla td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; font-size: 12px; }
@@ -121,7 +122,6 @@
         .presupuesto-totales { width: 100%; max-width: 250px; margin-left: auto; background: var(--black); color: var(--white); padding: 10px; border-radius: 6px; border: 2px solid var(--gold); font-size: 12px; }
         .presupuesto-totales p { display: flex; justify-content: space-between; margin: 4px 0; }
         .presupuesto-final { font-size: 14px; font-weight: bold; color: var(--gold); border-top: 1px solid #444; padding-top: 5px; margin-top: 5px; display: flex; justify-content: space-between; }
-        .presupuesto-img-3d { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; }
 
         /* CARRITO LATERAL OFF-CANVAS */
         .carrito-lateral { position: fixed; top: 0; right: -110%; width: 100%; max-width: 400px; height: 100vh; background: var(--white); box-shadow: -10px 0 30px rgba(0,0,0,0.15); transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 1000; display: flex; flex-direction: column; border-left: 2px solid var(--gold);}
@@ -146,24 +146,6 @@
         .btn-flotante { position: fixed; bottom: 20px; right: 20px; background: var(--black); color: var(--gold); border: 2px solid var(--gold); border-radius: 50%; width: 65px; height: 65px; font-size: 24px; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 999; display: flex; justify-content: center; align-items: center; transition: var(--transition); }
         .btn-flotante:hover { transform: scale(1.08); background: var(--gold); color: var(--black); border-color: var(--black);}
         .badge-flotante { position: absolute; top: -5px; right: -5px; background: var(--white); color: var(--black); font-size: 14px; font-weight: bold; border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--gold); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
-
-        /* CONFIGURACIÓN ESTRICTA DE IMPRESIÓN */
-        @media print {
-            body * { visibility: hidden !important; }
-            #contenido-presupuesto-pdf, #contenido-presupuesto-pdf * { visibility: visible !important; }
-            #contenido-presupuesto-pdf { 
-                position: absolute !important; 
-                left: 0 !important; 
-                top: 0 !important; 
-                width: 100% !important; 
-                margin: 0 !important; 
-                padding: 10px !important; 
-                background: white !important;
-            }
-            .modal-overlay, .modal-content { background: transparent !important; box-shadow: none !important; overflow: visible !important; }
-            .modal-close, .btn-accion-pdf { display: none !important; }
-            @page { size: portrait; margin: 10mm; }
-        }
 
         /* =========================================
            MEDIA QUERIES (ADAPTACIÓN A CELULARES) 
@@ -316,7 +298,7 @@
 
     <!-- MODAL DE VISTA PREVIA Y DESCARGA DE PRESUPUESTO -->
     <div id="modal-presupuesto" class="modal-overlay">
-        <div class="modal-content" style="max-width: 620px;">
+        <div class="modal-content" style="max-width: 580px;">
             <div class="modal-close" onclick="cerrarModalPresupuesto()">×</div>
             
             <div id="contenido-presupuesto-pdf" class="presupuesto-preview">
@@ -330,11 +312,6 @@
                         Tel: 11-3189-5060<br>
                         <span id="presupuesto-fecha"></span>
                     </div>
-                </div>
-
-                <!-- FOTO DEL DISEÑO 3D (VISTA CENITAL) -->
-                <div style="text-align: center; margin-bottom: 12px;">
-                    <img id="preview-img-3d" class="presupuesto-img-3d" src="" alt="Vista Previa 3D del Ambiente">
                 </div>
 
                 <div style="background: #f9f9f9; padding: 8px; border-radius: 6px; font-size: 11px; margin-bottom: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px;">
@@ -366,8 +343,8 @@
                 </p>
             </div>
 
-            <div style="text-align: center; padding: 12px 20px 20px 20px; background: #fff; border-top: 1px solid #eee;" class="btn-accion-pdf">
-                <button class="btn-primario" onclick="window.print()" style="background: var(--gold); color: var(--black); width: auto; padding: 10px 25px; margin-top:0;">📥 Guardar como PDF / Imprimir</button>
+            <div style="text-align: center; padding: 15px 20px; background: #fff; border-top: 1px solid #eee;">
+                <button class="btn-primario" onclick="descargarPDFDirecto()" style="background: var(--gold); color: var(--black); width: auto; padding: 12px 30px; margin-top:0;">📥 Descargar PDF (1 Página)</button>
             </div>
         </div>
     </div>
@@ -438,7 +415,7 @@
             { id: 'veneto', nombre: 'Veneto', imagen: 'veneto.jpg', precio: 30000, tipo: 'placa', desc: 'Estilo rústico suavizado, aportando textura visual sin perder la elegancia.', rec: 'Salas de estar cálidas, casas de fin de semana o estilo campo.' },
             { id: 'carrara', nombre: 'Carrara', imagen: 'carrara.jpg', precio: 30000, tipo: 'placa', desc: 'El rey de los mármoles. Blanco grisáceo con veta fina y continua.', rec: 'Baños clásicos, cocinas luminosas y frentes de locales.' },
             { id: 'trentinogold', nombre: 'Trentino Gold', imagen: 'trentinogold.jpg', precio: 30000, tipo: 'placa', desc: 'La base pétrea del Trentino con ligeras y elegantes vetas doradas.', rec: 'Espacios que buscan un toque de lujo sutil sin ser recargados.' },
-            { id: 'sahara', nombre: 'Sahara Noir', imagen: 'sahara.jpg', precio: 30000, desc: 'Fondo negro absoluto con líneas rectas y definidas en blanco y dorado.', rec: 'Revestimiento de lujo para oficinas, lobbies o baños principales.' },
+            { id: 'sahara', nombre: 'Sahara Noir', imagen: 'sahara.jpg', precio: 30000, tipo: 'placa', desc: 'Fondo negro absoluto con líneas rectas y definidas en blanco y dorado.', rec: 'Revestimiento de lujo para oficinas, lobbies o baños principales.' },
             { id: 'arabescato', nombre: 'Arabescato', imagen: 'arabescato.jpg', precio: 30000, tipo: 'placa', desc: 'Mármol blanco con vetas ovilladas grises muy características del diseño italiano.', rec: 'Interiores clásicos y elegantes, chimeneas falsas o recibidores.' }
         ];
 
@@ -616,9 +593,6 @@
                 return;
             }
 
-            // Capturar foto en vista cenital (desde arriba) del 3D para el PDF
-            capturarVistaCenital3D();
-
             document.getElementById('presupuesto-fecha').innerText = new Date().toLocaleDateString('es-AR');
             document.getElementById('p-ambiente').innerText = cotizacionActual.ambiente;
             document.getElementById('p-area').innerText = cotizacionActual.area;
@@ -633,6 +607,20 @@
 
         function cerrarModalPresupuesto() {
             document.getElementById('modal-presupuesto').style.display = 'none';
+        }
+
+        // --- DESCARGA DIRECTA A PDF CON HTML2PDF (SIN PASAR POR IMPRESIÓN) ---
+        function descargarPDFDirecto() {
+            const elemento = document.getElementById('contenido-presupuesto-pdf');
+            const opt = {
+                margin:       10,
+                filename:     'Presupuesto_JF_Reformas.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: 'avoid-all' }
+            };
+            html2pdf().from(elemento).set(opt).save();
         }
 
         function enviarWspCotizacion() {
@@ -724,7 +712,7 @@
             camera = new THREE.PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 1000);
             camera.position.set(0, 1.5, 0.1); 
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(renderer.domElement);
 
@@ -816,27 +804,6 @@
                 floorMesh.material.map = textura; 
                 floorMesh.material.needsUpdate = true;
             });
-        }
-
-        // --- CAPTURA DE VISTA CENITAL PARA EL PDF ---
-        function capturarVistaCenital3D() {
-            // Guardar posición actual de cámara y controles
-            const prevCamPos = camera.position.clone();
-            const prevCamRot = camera.rotation.clone();
-
-            // Posicionar la cámara cenital (arriba mirando hacia el centro)
-            camera.position.set(0, 3.8, 0.01);
-            camera.lookAt(0, 0, 0);
-            renderer.render(scene, camera);
-
-            // Obtener imagen en base64
-            const dataURL = renderer.domElement.toDataURL('image/png');
-            document.getElementById('preview-img-3d').src = dataURL;
-
-            // Restaurar la cámara a su posición interactiva normal
-            camera.position.copy(prevCamPos);
-            camera.rotation.copy(prevCamRot);
-            renderer.render(scene, camera);
         }
 
         window.addEventListener('resize', () => {
