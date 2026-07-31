@@ -112,10 +112,9 @@
         .add-cart-controls { display: flex; gap: 15px; margin-top: 10px; align-items: center; }
         .add-cart-controls input { width: 80px; text-align: center; border-radius: 10px; border: 1px solid #ccc; font-weight: bold; padding: 12px; font-size: 16px;}
         
-        /* ESTILOS DE LA VISTA PREVIA DEL PRESUPUESTO (OPTIMIZADO PARA 1 PÁGINA EXACTA) */
+        /* ESTILOS DE LA VISTA PREVIA DEL PRESUPUESTO */
         .presupuesto-preview { padding: 25px; background: white; color: #111; font-family: inherit; width: 540px; box-sizing: border-box; }
         .presupuesto-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 12px; }
-        .presupuesto-logo { max-height: 45px; width: auto; }
         .presupuesto-tabla { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
         .presupuesto-tabla th, .presupuesto-tabla td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; font-size: 12px; }
         .presupuesto-tabla th { background-color: var(--black); color: var(--gold); }
@@ -221,6 +220,9 @@
                     </div>
                 </div>
 
+                <label>Nombre del Cliente / Presupuesto:</label>
+                <input type="text" id="nombre-cliente-presupuesto" placeholder="Ej: Juan Perez - Living">
+
                 <label>Tipo de Ambiente:</label>
                 <select id="ambiente">
                     <option value="otro">Ambiente Estándar (Living, Cuarto)</option>
@@ -304,20 +306,22 @@
             <div id="contenido-presupuesto-pdf" class="presupuesto-preview">
                 <div class="presupuesto-header">
                     <div>
-                        <img src="image3.jpg" class="presupuesto-logo" alt="JF Reformas" onerror="this.style.display='none'">
-                        <h2 style="margin: 3px 0 0 0; font-size: 16px;">Presupuesto Oficial</h2>
+                        <h2 style="margin: 0; font-size: 18px; color: #111;">JF REFORMAS</h2>
+                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #D4AF37; font-weight: bold;">PRESUPUESTO OFICIAL</p>
                     </div>
                     <div style="text-align: right; font-size: 11px; color: #555;">
-                        <strong>JF Reformas</strong><br>
                         Tel: 11-3189-5060<br>
                         <span id="presupuesto-fecha"></span>
                     </div>
                 </div>
 
-                <div style="background: #f9f9f9; padding: 8px; border-radius: 6px; font-size: 11px; margin-bottom: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px;">
-                    <div><strong>Ambiente:</strong> <span id="p-ambiente"></span></div>
-                    <div><strong>Área Total:</strong> <span id="p-area"></span> m²</div>
-                    <div><strong>Total Placas:</strong> <span id="p-placas"></span> u.</div>
+                <div style="background: #f9f9f9; padding: 8px; border-radius: 6px; font-size: 11px; margin-bottom: 12px;">
+                    <div><strong>Cliente / Proyecto:</strong> <span id="p-cliente-nombre"></span></div>
+                    <div style="margin-top: 4px; display: flex; justify-content: space-between;">
+                        <span><strong>Ambiente:</strong> <span id="p-ambiente"></span></span>
+                        <span><strong>Área Total:</strong> <span id="p-area"></span> m²</span>
+                        <span><strong>Total Placas:</strong> <span id="p-placas"></span> u.</span>
+                    </div>
                 </div>
 
                 <h3 style="font-size: 13px; margin-bottom: 6px;">Detalle por Pared:</h3>
@@ -593,7 +597,10 @@
                 return;
             }
 
+            const nombreClienteInput = document.getElementById('nombre-cliente-presupuesto').value.trim() || "Cliente General";
+
             document.getElementById('presupuesto-fecha').innerText = new Date().toLocaleDateString('es-AR');
+            document.getElementById('p-cliente-nombre').innerText = nombreClienteInput;
             document.getElementById('p-ambiente').innerText = cotizacionActual.ambiente;
             document.getElementById('p-area').innerText = cotizacionActual.area;
             document.getElementById('p-placas').innerText = cotizacionActual.placas;
@@ -609,12 +616,15 @@
             document.getElementById('modal-presupuesto').style.display = 'none';
         }
 
-        // --- DESCARGA DIRECTA A PDF CON HTML2PDF (SIN PASAR POR IMPRESIÓN) ---
+        // --- DESCARGA DIRECTA A PDF CON NOMBRE PERSONALIZADO ---
         function descargarPDFDirecto() {
+            const nombreClienteInput = document.getElementById('nombre-cliente-presupuesto').value.trim() || "Cliente";
+            const nombreArchivo = `Presupuesto_${nombreClienteInput.replace(/\s+/g, '_')}.pdf`;
+
             const elemento = document.getElementById('contenido-presupuesto-pdf');
             const opt = {
                 margin:       10,
-                filename:     'Presupuesto_JF_Reformas.pdf',
+                filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
